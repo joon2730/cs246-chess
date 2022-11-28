@@ -7,7 +7,7 @@
 
 Knight::Knight(int color, int name) : Piece(color, name) {}
 
-bool Knight::canMove(Board *board, Move *mv) {
+bool Knight::canMove(Board& board, shared_ptr<Move>& mv) {
   Square *start = mv->getStartSquare();
   Square *end = mv->getEndSquare();
   // cannot move to square with a piece with same color
@@ -30,22 +30,19 @@ bool Knight::canMove(Board *board, Move *mv) {
   return true;
 }
 //
-std::vector<Move *> Knight::listPossibleMoves(Board *board) {
-  // std::cout << printText() << "\n";
-  std::vector<Move *> possible_moves;
-  for (int i = 0; i < board->getRows(); ++i) {
-    for (int j = 0; j < board->getCols(); ++j) {
-      // std::cout << i << " " << j << "\n";
-      Move *mv = new Move(position, board->getSquare(i, j));
-      if (canMove(board, mv)) {
-        possible_moves.push_back(mv);
-      } else {
-        delete mv;
-      }
+vector<shared_ptr<Move>> Knight::listPossibleMoves(Board& board) {
+    // cout << printText() << "\n";
+    vector<shared_ptr<Move>> possible_moves;
+    for (int i = 0; i < board.getRows(); ++i) {
+        for (int j = 0; j < board.getCols(); ++j) {
+            // cout << i << " " << j << "\n";
+            shared_ptr<Move> mv = std::make_shared<Move>(position, board.getSquare(i, j));
+            if (canMove(board, mv)) {
+                possible_moves.push_back(std::move(mv));
+            }
+        } 
     }
-  }
-
-  return possible_moves;
+    return possible_moves;
 }
 
 std::string Knight::printText() {

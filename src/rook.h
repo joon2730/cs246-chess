@@ -5,9 +5,9 @@
 class Rook : public Piece {
  public:
   Rook(int color, int name);
-  std::string printText() override;
-  bool canMove(Board *board, Move *mv) override;
-  std::vector<Move *> listPossibleMoves(Board *board) override;
+  string printText() override;
+  bool canMove(Board& board, shared_ptr<Move>& mv) override;
+  vector<shared_ptr<Move>> listPossibleMoves(Board& board) override;
 };
 
 #endif

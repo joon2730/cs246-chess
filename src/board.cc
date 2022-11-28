@@ -1,8 +1,12 @@
 #include "board.h"
-#include "queen.h"
-#include "king.h"
 #include "move.h"
 #include "piece.h"
+#include "pawn.h"
+#include "knight.h"
+#include "bishop.h"
+#include "rook.h"
+#include "queen.h"
+#include "king.h"
 #include <stdexcept>
 #include <iostream>
 
@@ -45,16 +49,15 @@ int Board::opponent(int color) {
 
 void Board::addPiece(int piece, int color, string pos) {
     shared_ptr<Piece> new_piece;
-    // if (piece == PAWN) {
-
-    // } else if (piece == KNIGHT){
-
-    // } else if (piece == BISHOP){
-
-    // } else if (piece == ROOK){
-
-    // } else
-    if (piece == QUEEN){
+    if (piece == PAWN) {
+        new_piece = std::make_shared<Pawn>(color, PAWN);
+    } else if (piece == KNIGHT){
+        new_piece = std::make_shared<Knight>(color, KNIGHT);
+    } else if (piece == BISHOP){
+        new_piece = std::make_shared<Bishop>(color, BISHOP);
+    } else if (piece == ROOK){
+        new_piece = std::make_shared<Rook>(color, ROOK);
+    } else if (piece == QUEEN){
         new_piece = std::make_shared<Queen>(color, QUEEN);
     } else if (piece == KING){
         new_piece = std::make_shared<King>(color, KING);
@@ -80,15 +83,31 @@ void Board::init() {
     // addPiece(Pawn, White, "e2");
     // addPiece(Pawn, White, "f2");
     // addPiece(Pawn, White, "g2");
+    // addPiece(ROOK, WHITE, "a1");
+    // addPiece(KNIGHT, WHITE, "b1");
+    // addPiece(BISHOP, WHITE, "c1");
     addPiece(QUEEN, WHITE, "d1");
-    addPiece(QUEEN, BLACK, "d8");
     addPiece(KING, WHITE, "e1");
-    addPiece(KING, BLACK, "e8");
+    // addPiece(BISHOP, WHITE, "f1");
+    // addPiece(KNIGHT, WHITE, "g1");
+    // addPiece(ROOK, WHITE, "h1");
+    addPiece(PAWN, WHITE, "a2");
+    addPiece(PAWN, WHITE, "b2");
+    addPiece(PAWN, WHITE, "c2");
+    addPiece(PAWN, WHITE, "d2");
+    addPiece(PAWN, WHITE, "e2");
+    addPiece(PAWN, WHITE, "f2");
+    addPiece(PAWN, WHITE, "g2");
+    addPiece(PAWN, WHITE, "h2");
 
-    addPiece(QUEEN, WHITE, "c1");
-    addPiece(QUEEN, BLACK, "c8");
-    addPiece(QUEEN, WHITE, "f1");
-    addPiece(QUEEN, BLACK, "f8");
+    // addPiece(ROOK, BLACK, "a8");
+    // addPiece(KNIGHT, BLACK, "b8");
+    // addPiece(BISHOP, BLACK, "c8");
+    addPiece(QUEEN, BLACK, "d8");
+    addPiece(KING, BLACK, "e8");
+    // addPiece(BISHOP, BLACK, "f8");
+    // addPiece(KNIGHT, BLACK, "g8");
+    // addPiece(ROOK, BLACK, "h8");
     updateState();
 
 }
