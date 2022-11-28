@@ -1,17 +1,13 @@
-#ifndef PAWN_H
-#define PAWN_H
+#ifndef ROOK_H
+#define ROOK_H
 #include "piece.h"
 
-class Pawn : public Piece {
- private:
-  bool moved_two_steps;
-
+class Rook : public Piece {
  public:
-  Pawn(int color, int name);
+  Rook(int color, int name);
   std::string printText() override;
   bool canMove(Board *board, Move *mv) override;
   std::vector<Move *> listPossibleMoves(Board *board) override;
-  bool getMoved();
 };
 
 #endif
