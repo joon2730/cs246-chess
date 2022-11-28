@@ -6,10 +6,10 @@
 
 Queen::Queen(int color, int name): Piece(color, name) {}
 
-bool Queen::canMove(Board *board, Move *mv) {
+bool Queen::canMove(Board& board, shared_ptr<Move>& mv) {
     Square *start = mv->getStartSquare();
     Square *end = mv->getEndSquare();
-    // cannot move to square with a piece with same color 
+    // cannot move to square with a piece with same color
     if ((!end->isEmpty()) && (color == end->getPiece()->getColor())) {
         return false;
     }
@@ -28,7 +28,7 @@ bool Queen::canMove(Board *board, Move *mv) {
     int cur_col = start_col + col_step;
     int cur_row = start_row + row_step;
     while (!(cur_col == end_col && cur_row == end_row)) {
-        if (!board->getSquare(cur_row, cur_col)->isEmpty()) {
+        if (!board.getSquare(cur_row, cur_col)->isEmpty()) {
             return false;
         }
         cur_col += col_step;
@@ -37,17 +37,15 @@ bool Queen::canMove(Board *board, Move *mv) {
     return true;
 }
 
-std::vector<Move*> Queen::listPossibleMoves(Board *board) {
-    // std::cout << printText() << "\n";
-    std::vector<Move*> possible_moves;
-    for (int i = 0; i < board->getRows(); ++i) {
-        for (int j = 0; j < board->getCols(); ++j) {
-            // std::cout << i << " " << j << "\n";
-            Move *mv = new Move(position, board->getSquare(i, j));
+vector<shared_ptr<Move>> Queen::listPossibleMoves(Board& board) {
+    // cout << printText() << "\n";
+    vector<shared_ptr<Move>> possible_moves;
+    for (int i = 0; i < board.getRows(); ++i) {
+        for (int j = 0; j < board.getCols(); ++j) {
+            // cout << i << " " << j << "\n";
+            shared_ptr<Move> mv = std::make_shared<Move>(position, board.getSquare(i, j));
             if (canMove(board, mv)) {
-                possible_moves.push_back(mv);
-            } else {
-                delete mv;
+                possible_moves.push_back(std::move(mv));
             }
         } 
     }
@@ -76,7 +74,7 @@ std::vector<Move*> Queen::listPossibleMoves(Board *board) {
 }
 
 
-std::string Queen::printText() {
+string Queen::printText() {
     if (color == WHITE) {
         return "Q";
     } else {

@@ -1,14 +1,21 @@
 #ifndef MOVE_H
 #define MOVE_H
 
+#include <memory>
+#include <utility>
+
+using std::string;
+using std::vector;
+using std::shared_ptr;
 class Square;
 class Piece;
+
 
 class Move {
     Square *start;
     Square *end;
-    Piece *moving_piece;
-    Piece *killed_piece;
+    shared_ptr<Piece> moving_piece;
+    shared_ptr<Piece> killed_piece;
     bool attack = false;
     bool enpassant = false;
     bool promotion = false;
@@ -16,8 +23,8 @@ class Move {
     bool resign = false;
   public:
     Move(Square *start, Square *end);
-    void setMovingPiece(Piece *moving_piece);
-    void setKilledPiece(Piece *killed_piece);
+    void setMovingPiece(shared_ptr<Piece> moving_piece);
+    void setKilledPiece(shared_ptr<Piece> killed_piece);
     void setIsAttack();
     void setIsEnpassant();
     void setIsPromotion();
@@ -25,8 +32,8 @@ class Move {
     void setIsResign();
     Square* getStartSquare();
     Square* getEndSquare();
-    Piece* getMovingPiece();
-    Piece* getKilledPiece();
+    shared_ptr<Piece> getMovingPiece();
+    shared_ptr<Piece> getKilledPiece();
     bool isAttack();
     bool isEnpassant();
     bool isPromotion();

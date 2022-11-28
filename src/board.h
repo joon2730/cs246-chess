@@ -5,9 +5,11 @@
 #include "subject.h"
 #include <vector>
 #include <string>
+#include <utility>
 
 using std::string;
 using std::vector;
+using std::shared_ptr;
 
 class Board: public Subject {
   public:
@@ -18,24 +20,26 @@ class Board: public Subject {
     enum {PAWN=0, KNIGHT, BISHOP, ROOK, QUEEN, KING};
   private:
     vector<vector<Square>> board;
-    vector<Piece*> pieces[NUM_COLORS];
-    vector<Move*> moves_played;
-    Piece *kings[NUM_COLORS];
+    vector<shared_ptr<Piece>> pieces[NUM_COLORS];
+    vector<shared_ptr<Move>> moves_played;
+    shared_ptr<Piece> kings[NUM_COLORS];
     bool checked[NUM_COLORS];
     bool checkmated[NUM_COLORS];
     bool stalemated[NUM_COLORS];
     // Empties pieces and moves_played
     void empty();
-    bool checkChecked(int color);
     void updateState();
+    // checks if the color's king is currently checked
     bool detectChecked(int Color);
+    // checks if the move complys the basic chess movement patterns
+    bool isPossible(shared_ptr<Move>& mv);
+    // checks if the move puts own king in check
+    bool isPuttingOwnKingInCheck(shared_ptr<Move>& mv);
     void addPiece(int piece, int color, string pos);
-    bool isLegal(Move *mv);
-    vector<Move*> listLegalMoves(int color);
     void removePiece(string coord);
-    void movePiece(Piece *piece, Square *from, Square *to);
-    void doMove(Move *mv);
-    void undoMove(Move *mv);
+    void movePiece(shared_ptr<Piece>& piece, Square *from, Square *to);
+    void doMove(shared_ptr<Move>& mv);
+    void undoMove(shared_ptr<Move>& mv);
     int opponent(int color);
   public:
     Board();
@@ -45,8 +49,10 @@ class Board: public Subject {
     bool isChecked(int color);
     bool isCheckmated(int color);
     bool isStalemated(int color);
-    void push(Move *mv);
+    void push(shared_ptr<Move>& mv);
     void pop();
+    bool isLegal(shared_ptr<Move>& mv);
+    vector<shared_ptr<Move>> listLegalMoves(int color);
     // Returns a pointer to Square in board at row and col corresponding to coord; ex: "d4", "e4" 
     Square* getSquare(string pos);
     Square* getSquare(int row, int col);

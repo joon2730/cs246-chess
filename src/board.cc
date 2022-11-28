@@ -12,9 +12,8 @@ Board::Board() {
 		board.emplace_back(row);
 		for (int j = 0; j < COLS; ++j) {
 			board.at(i).push_back(Square(i, j));
-		}
+	    }
     }
-    init();
 }
 
 Board::~Board() {
@@ -28,15 +27,11 @@ void Board::render() {
 void Board::empty() {
     for (int i = 0; i < NUM_COLORS; ++i) {
         while (pieces[i].size() > 0) {
-            Piece *tmp = pieces[i].back();
             pieces[i].pop_back();
-            delete tmp;
         }
     }
     while (moves_played.size() > 0) {
-        Move *tmp = moves_played.back();
         moves_played.pop_back();
-        delete tmp;
     }
 }
 
@@ -49,7 +44,7 @@ int Board::opponent(int color) {
 }
 
 void Board::addPiece(int piece, int color, string pos) {
-    Piece *new_piece;
+    shared_ptr<Piece> new_piece;
     // if (piece == PAWN) {
 
     // } else if (piece == KNIGHT){
@@ -60,16 +55,16 @@ void Board::addPiece(int piece, int color, string pos) {
 
     // } else
     if (piece == QUEEN){
-        new_piece = new Queen(color, QUEEN);
+        new_piece = std::make_shared<Queen>(color, QUEEN);
     } else if (piece == KING){
-        new_piece = new King(color, KING);
+        new_piece = std::make_shared<King>(color, KING);
         kings[color] = new_piece;
     } else {
         throw std::invalid_argument("invalid type of piece");
     }
-    pieces[color].push_back(new_piece);
     Square *sq = getSquare(pos);
     sq->place(new_piece);
+    pieces[color].push_back(std::move(new_piece));
 }
 
 void Board::removePiece(string pos) {
@@ -94,40 +89,56 @@ void Board::init() {
     addPiece(QUEEN, BLACK, "c8");
     addPiece(QUEEN, WHITE, "f1");
     addPiece(QUEEN, BLACK, "f8");
+    updateState();
 
 }
 
-bool Board::isLegal(Move *mv) {
-    // std::cout << "is legal entered\n";
+bool Board::isPossible(shared_ptr<Move>& mv) {
+    Square *start = mv->getStartSquare();
+    if (start->isEmpty()) {
+        throw std::invalid_argument("Board::isPossible: No piece to move found");
+    }
+    // piece must be able to reach the square follwing the rule
+    shared_ptr<Piece> moving_piece = start->getPiece();
+    if (moving_piece->canMove(*this, mv)) {
+        return true;
+    }
+    return false;
+}
+
+bool Board::isLegal(shared_ptr<Move>& mv) {
+    if (isPossible(mv) && !isPuttingOwnKingInCheck(mv)) {
+        return true;
+    }
+    return false;
+}
+
+bool Board::isPuttingOwnKingInCheck(shared_ptr<Move>& mv) {
     doMove(mv);
     bool checked = detectChecked(mv->getMovingPiece()->getColor());
     undoMove(mv);
     if (checked) {
-        return false;
+        return true;
     }
-    return true;
-    // std::cout << "is legal ended\n";
-
+    return false;
 }
 
-vector<Move*> Board::listLegalMoves(int color) {
+vector<shared_ptr<Move>> Board::listLegalMoves(int color) {
     // std::cout << "list legal move entered\n";
-
-    vector<Move*> res;
+    vector<shared_ptr<Move>> res;
     for (auto piece : pieces[color]) {
+        // cannot move if piece is dead
         if (piece->isDead()) {
             continue;
         }
-        vector<Move*> possible_moves = piece->listPossibleMoves(this);
+        // get all possible moves for the piece
+        vector<shared_ptr<Move>> possible_moves = piece->listPossibleMoves(*this);
         while (possible_moves.size() > 0) {
             // std::cout << "loop left" << possible_moves.size() << "\n";
-
-            Move *mv = possible_moves.back();
+            shared_ptr<Move> mv = possible_moves.back();
             possible_moves.pop_back();
-            if (isLegal(mv)) {
-                res.push_back(mv);
-            } else {
-                delete mv;
+            if (!isPuttingOwnKingInCheck(mv)) {
+                res.push_back(std::move(mv));
             }
         }
     }
@@ -141,8 +152,8 @@ bool Board::detectChecked(int color) {
         if (op->isDead()) {
             continue;
         } else {
-            Move *mv = new Move(op->getPosition(), king_pos);
-            if (op->canMove(this, mv)) {
+            shared_ptr<Move> mv = std::make_shared<Move>(op->getPosition(), king_pos);
+            if (op->canMove(*this, mv)) {
                 return true;
             }
         }
@@ -153,7 +164,7 @@ bool Board::detectChecked(int color) {
 void Board::updateState() {
     for (int color = WHITE; color < NUM_COLORS; ++color) {
         checked[color] = detectChecked(color);
-        vector<Move*> legal_moves = listLegalMoves(color);
+        vector<shared_ptr<Move>> legal_moves = listLegalMoves(color);
         if (legal_moves.size() == 0) {
             if (checked[color]) {
                 checkmated[color] = true;
@@ -165,9 +176,6 @@ void Board::updateState() {
             stalemated[color] = false;
         }
         stalemated[color] = false;
-        for (auto mv: legal_moves) {
-            delete mv;
-        }
         // checked = false;
         // for (auto pieces : pieces[opponent(cl)]) {
 	    //     if ()
@@ -175,79 +183,75 @@ void Board::updateState() {
     }
 }
 
-void Board::movePiece(Piece *piece, Square *from, Square *to) {
+void Board::movePiece(shared_ptr<Piece>& piece, Square *from, Square *to) {
     from->empty();
     to->place(piece);
 }
 
-
-
-void Board::doMove(Move *mv) {
+void Board::doMove(shared_ptr<Move>& mv) {
     Square *start = mv->getStartSquare();
     Square *end = mv->getEndSquare();
-    Piece *moving_piece = start->getPiece();
+    if (start->isEmpty()) {
+        throw std::invalid_argument("Board::doMove: No piece to move found");
+    } 
+    shared_ptr<Piece> moving_piece = start->getPiece();
     // std::cout << "doMove from " << *start << " to " << *end << " entered\n";
     mv->setMovingPiece(moving_piece);
     // if there is a piece being attacked
     if (!end->isEmpty()) {
         mv->setIsAttack();
-        Piece *killed_piece = end->getPiece();
+        shared_ptr<Piece> killed_piece = end->getPiece();
         mv->setKilledPiece(killed_piece);
     }
     // move the moving piece
     movePiece(moving_piece, start, end);
     // std::cout << "doMove ended\n";
-
-    
 }
 
-void Board::push(Move *mv) {
-    Square *start = mv->getStartSquare();
-    //Square *end = mv->getEndSquare();
-    // Start square is not empty
-    if (start->isEmpty()) {
-        delete mv;
-        throw std::invalid_argument("No moving piece found");
-    }
-    Piece *moving_piece = start->getPiece();
-    // Move conforms to rules for each piece's movement
-    if (!moving_piece->canMove(this, mv)) {
-        delete mv;
-        throw std::invalid_argument("Illegal move: impossible move");
+void Board::push(shared_ptr<Move>& mv) {
+    // Square *start = mv->getStartSquare();
+    // //Square *end = mv->getEndSquare();
+    // // Start square is not empty
+    // if (start->isEmpty()) {
+    //     throw std::invalid_argument("No moving piece found");
+    // }
+    // shared_ptr<Piece> moving_piece = start->getPiece();
+    // piece must be able to reach the square according to rule
+    if (!isPossible(mv)) {
+        throw std::invalid_argument("Board::push: move not possible");
     }
     // make movement
     doMove(mv);
     // move must not put the same color's king in check
     if (detectChecked(mv->getMovingPiece()->getColor())) {
         undoMove(mv);
-        throw std::invalid_argument("Illegal move: puts the same color's king in check");
+        throw std::invalid_argument("Board::push: move puts the same color's king in check");
     }
     // update state
     updateState();
     // record the move
-    moves_played.push_back(mv);
+    moves_played.push_back(std::move(mv));
 }
 
-void Board::undoMove(Move *mv) {
+void Board::undoMove(shared_ptr<Move>& mv) {
     Square *start = mv->getStartSquare();
     Square *end = mv->getEndSquare();
-    Piece *moving_piece = mv->getMovingPiece();
+    shared_ptr<Piece> moving_piece = mv->getMovingPiece();
     // move the moved piece backward
     movePiece(moving_piece, end, start);
     // if there was a killed piece revoke it
     if (mv->isAttack()) {
-        Piece *killed_piece = mv->getKilledPiece();
+        shared_ptr<Piece> killed_piece = mv->getKilledPiece();
         end->place(killed_piece);
     }  
 }
 
 void Board::pop() {
     // recall the last move
-    Move *mv = moves_played.back();
+    shared_ptr<Move> mv = moves_played.back();
     moves_played.pop_back();
     undoMove(mv);
     updateState();
-    delete mv;
 }
 
 Square* Board::getSquare(string pos) {
