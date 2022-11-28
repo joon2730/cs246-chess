@@ -33,17 +33,6 @@ bool Knight::canMove(Board *board, Move *mv) {
 std::vector<Move *> Knight::listPossibleMoves(Board *board) {
   // std::cout << printText() << "\n";
   std::vector<Move *> possible_moves;
-  for (int i = 0; i < board->getRows(); ++i) {
-    for (int j = 0; j < board->getCols(); ++j) {
-      // std::cout << i << " " << j << "\n";
-      Move *mv = new Move(position, board->getSquare(i, j));
-      if (canMove(board, mv)) {
-        possible_moves.push_back(mv);
-      } else {
-        delete mv;
-      }
-    }
-  }
 
   return possible_moves;
 }
