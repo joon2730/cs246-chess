@@ -1,2 +1,2 @@
-king.o: king.cc king.h piece.h move.h square.h math.h board.h subject.h \
-  observer.h
+king.o: king.cc king.h piece.h board.h square.h move.h subject.h \
+  observer.h math.h

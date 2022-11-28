@@ -8,8 +8,8 @@
 Rook::Rook(int color, int name) : Piece(color, name) {}
 
 bool Rook::canMove(Board& board, shared_ptr<Move>& mv) {
-  Square *start = mv->getStartSquare();
-  Square *end = mv->getEndSquare();
+  Square* start = mv->getStartSquare();
+  Square* end = mv->getEndSquare();
 
   // cannot move to square with a piece with same color
   if ((!end->isEmpty()) && (color == end->getPiece()->getColor())) {
@@ -43,18 +43,20 @@ bool Rook::canMove(Board& board, shared_ptr<Move>& mv) {
 }
 
 vector<shared_ptr<Move>> Rook::listPossibleMoves(Board& board) {
-    // cout << printText() << "\n";
-    vector<shared_ptr<Move>> possible_moves;
-    for (int i = 0; i < board.getRows(); ++i) {
-        for (int j = 0; j < board.getCols(); ++j) {
-            // cout << i << " " << j << "\n";
-            shared_ptr<Move> mv = std::make_shared<Move>(position, board.getSquare(i, j));
-            if (canMove(board, mv)) {
-                possible_moves.push_back(std::move(mv));
-            }
-        } 
+  // cout << printText() << "\n";
+  vector<shared_ptr<Move>> possible_moves;
+  for (int i = 0; i < board.getRows(); ++i) {
+    for (int j = 0; j < board.getCols(); ++j) {
+      // cout << i << " " << j << "\n";
+      shared_ptr<Move> mv =
+          std::make_shared<Move>(position, board.getSquare(i, j));
+      if (canMove(board, mv)) {
+        possible_moves.push_back(std::move(mv));
+      }
     }
-    return possible_moves;
+  }
+
+  return possible_moves;
 }
 
 string Rook::printText() {
