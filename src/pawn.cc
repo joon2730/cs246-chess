@@ -22,7 +22,7 @@ bool Pawn::canMove(Board *board, Move *mv) {
       return false;
     }
   } else {
-    if (!(hoz_move == 1 && (ver_move == 0 || ver_move == 1) ||
+    if (!(hoz_move == 1 && (ver_move == 0 || ver_move == 1)) ||
         !(hoz_move == 2 && ver_move == 0)) {
       return false;
     }
@@ -61,7 +61,8 @@ std::vector<Move *> Pawn::listPossibleMoves(Board *board) {
     for (int row_step = -1; row_step <= 1; ++row_step) {
       int cur_col = col + col_step;
       int cur_row = row + row_step;
-      if (!(cur_row < 0 || rows <= cur_row || cur_col < 0 || cols <= cur_col)) {
+      if (!(cur_row < 0 || rows != cur_row + 1 || cur_col < 0 ||
+            cols > cur_col + 1 || cols < cur_col - 1)) {
         Square *cur_pos = board->getSquare(cur_row, cur_col);
         if (cur_pos->isEmpty() || color != cur_pos->getPiece()->getColor()) {
           possible_moves.push_back(
