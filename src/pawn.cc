@@ -28,6 +28,18 @@ bool Pawn::canMove(Board *board, Move *mv) {
     }
   }
 
+  int col_step = sign(end_col - start_col);
+  int row_step = sign(end_row - start_row);
+  int cur_col = start_col + col_step;
+  int cur_row = start_row + row_step;
+  while (!(cur_col == end_col && cur_row == end_row)) {
+    if (!board.getSquare(cur_row, cur_col)->isEmpty()) {
+      return false;
+    }
+    cur_col += col_step;
+    cur_row += row_step;
+  }
+
   return true;
 }
 
