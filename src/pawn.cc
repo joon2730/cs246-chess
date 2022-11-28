@@ -22,7 +22,7 @@ bool Pawn::canMove(Board *board, Move *mv) {
       return false;
     }
   } else {
-    if (!(hoz_move == 1 && ver_move >= 0 && ver_move <= 1) ||
+    if (!(hoz_move == 1 && (ver_move == 0 || ver_move == 1) ||
         !(hoz_move == 2 && ver_move == 0)) {
       return false;
     }
