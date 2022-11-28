@@ -2,26 +2,29 @@
 #define PIECE_H
 #include <iostream>
 #include <string>
+#include <vector>
 
 class Square;
 class Move;
+class Board;
 
 class Piece {
   protected:
     int color;
     int name;
-    Square *location;
+    Square *position;
     bool has_moved = false;
-    bool is_dead = false;
   public:
     Piece(int color, int name);
     enum {WHITE=0, BLACK};
-    void setLocation(Square *sq);
+    void setPosition(Square *sq);
+    int getColor();
+    Square* getPosition();
     bool isDead();
     bool hasMoved();
-    int getColor();
     virtual std::string printText() = 0;
-    virtual bool canMove(Move *mv) = 0;
+    virtual bool canMove(Board *board, Move *mv) = 0;
+    virtual std::vector<Move*> listPossibleMoves(Board *board) = 0;
     virtual ~Piece();
 };
 

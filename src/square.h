@@ -17,6 +17,8 @@ class Square {
     // Return whether square is empty
     bool isEmpty();
     Piece* getPiece();
+    int getRow();
+    int getCol();
 };
 
 std::ostream& operator<<(std::ostream& out, Square& sq);

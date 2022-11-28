@@ -6,11 +6,11 @@ Square::Square(int row, int col): ROW{row}, COL{col}, piece{nullptr} {}
 void Square::place(Piece *pc) {
     empty();
     piece = pc;
-    piece->setLocation(this);
+    piece->setPosition(this);
 }
 void Square::empty() {
     if (!isEmpty()) {
-        piece->setLocation(nullptr);
+        piece->setPosition(nullptr);
         piece = nullptr;
     }
 }
@@ -21,6 +21,13 @@ Piece* Square::getPiece() {
     return piece;
 }
 
+int Square::getRow() {
+    return ROW;
+}
+int Square::getCol() {
+    return COL;
+}
+
 std::ostream& operator<<(std::ostream& out, Square& sq) {
     if (sq.isEmpty()) {
         out << "_";
@@ -29,3 +36,4 @@ std::ostream& operator<<(std::ostream& out, Square& sq) {
     }
     return out;
 }
+
