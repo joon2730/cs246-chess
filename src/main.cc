@@ -3,16 +3,21 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include<utility>
 
-Move* createMove(Board& board, std::string p1, std::string p2) {
+using std::string;
+using std::shared_ptr;
+
+shared_ptr<Move> createMove(Board& board, string p1, string p2) {
     Square *start = board.getSquare(p1);
     Square *end = board.getSquare(p2);
-    return new Move(start, end);
+    return std::make_shared<Move>(start, end);
 }
 
-void playMove(Board& board, std::string p1, std::string p2) {
+void playMove(Board& board, string p1, string p2) {
     try {
-        board.push(createMove(board, p1, p2));
+        shared_ptr<Move> mv = createMove(board, p1, p2);
+        board.push(mv);
         board.render();
     } catch (std::invalid_argument ex) {
         std::cout << ex.what() << std::endl;

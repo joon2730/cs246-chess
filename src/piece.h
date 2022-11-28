@@ -3,10 +3,15 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <utility>
 
 class Square;
 class Move;
 class Board;
+
+using std::string;
+using std::vector;
+using std::shared_ptr;
 
 class Piece {
   protected:
@@ -22,9 +27,9 @@ class Piece {
     Square* getPosition();
     bool isDead();
     bool hasMoved();
-    virtual std::string printText() = 0;
-    virtual bool canMove(Board *board, Move *mv) = 0;
-    virtual std::vector<Move*> listPossibleMoves(Board *board) = 0;
+    virtual string printText() = 0;
+    virtual bool canMove(Board& board, shared_ptr<Move>& mv) = 0;
+    virtual vector<shared_ptr<Move>> listPossibleMoves(Board& board) = 0;
     virtual ~Piece();
 };
 
