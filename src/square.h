@@ -1,22 +1,23 @@
 #ifndef SQUARE_H
 #define SQUARE_H
 #include <iostream>
+#include <utility>
 
 class Piece;
 
 class Square {
     const int ROW;
     const int COL;
-    Piece *piece;
+    std::shared_ptr<Piece> piece;
   public:
     Square(int row, int col);
     // Place pc on square
-    void place(Piece *pc);
+    void place(std::shared_ptr<Piece>& pc);
     // Empties square
     void empty();
     // Return whether square is empty
     bool isEmpty();
-    Piece* getPiece();
+    std::shared_ptr<Piece> getPiece();
     int getRow();
     int getCol();
 };

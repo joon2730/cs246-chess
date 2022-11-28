@@ -3,7 +3,7 @@
 
 Square::Square(int row, int col): ROW{row}, COL{col}, piece{nullptr} {}
 
-void Square::place(Piece *pc) {
+void Square::place(shared_ptr<Piece>& pc) {
     empty();
     piece = pc;
     piece->setPosition(this);
@@ -17,7 +17,7 @@ void Square::empty() {
 bool Square::isEmpty() {
     return piece == nullptr;
 }
-Piece* Square::getPiece() {
+shared_ptr<Piece> Square::getPiece() {
     return piece;
 }
 

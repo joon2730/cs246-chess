@@ -12,7 +12,7 @@ Board::Board() {
 		board.emplace_back(row);
 		for (int j = 0; j < COLS; ++j) {
 			board.at(i).push_back(Square(i, j));
-		}
+	    }
     }
     init();
 }
@@ -28,9 +28,7 @@ void Board::render() {
 void Board::empty() {
     for (int i = 0; i < NUM_COLORS; ++i) {
         while (pieces[i].size() > 0) {
-            Piece *tmp = pieces[i].back();
             pieces[i].pop_back();
-            delete tmp;
         }
     }
     while (moves_played.size() > 0) {
@@ -47,7 +45,7 @@ int Board::opponent(int color) {
 }
 
 void Board::addPiece(int piece, int color, string pos) {
-    Piece *new_piece;
+    shared_ptr<Piece> new_piece;
     // if (piece == PAWN) {
 
     // } else if (piece == KNIGHT){
@@ -58,16 +56,16 @@ void Board::addPiece(int piece, int color, string pos) {
 
     // } else
     if (piece == QUEEN){
-        new_piece = new Queen(color, QUEEN);
+        new_piece = std::make_shared<Queen>(color, QUEEN);
     } else if (piece == KING){
-        new_piece = new King(color, KING);
+        new_piece = std::make_shared<King>(color, KING);
         kings[color] = new_piece;
     } else {
         throw std::invalid_argument("invalid type of piece");
     }
-    pieces[color].push_back(new_piece);
     Square *sq = getSquare(pos);
     sq->place(new_piece);
+    pieces[color].push_back(std::move(new_piece));
 }
 
 void Board::removePiece(string pos) {
@@ -169,7 +167,7 @@ void Board::updateState() {
     }
 }
 
-void Board::movePiece(Piece *piece, Square *from, Square *to) {
+void Board::movePiece(shared_ptr<Piece>& piece, Square *from, Square *to) {
     from->empty();
     to->place(piece);
 }
@@ -179,13 +177,13 @@ void Board::movePiece(Piece *piece, Square *from, Square *to) {
 void Board::doMove(shared_ptr<Move>& mv) {
     Square *start = mv->getStartSquare();
     Square *end = mv->getEndSquare();
-    Piece *moving_piece = start->getPiece();
+    shared_ptr<Piece> moving_piece = start->getPiece();
     // std::cout << "doMove from " << *start << " to " << *end << " entered\n";
     mv->setMovingPiece(moving_piece);
     // if there is a piece being attacked
     if (!end->isEmpty()) {
         mv->setIsAttack();
-        Piece *killed_piece = end->getPiece();
+        shared_ptr<Piece> killed_piece = end->getPiece();
         mv->setKilledPiece(killed_piece);
     }
     // move the moving piece
@@ -202,7 +200,7 @@ void Board::push(shared_ptr<Move>& mv) {
     if (start->isEmpty()) {
         throw std::invalid_argument("No moving piece found");
     }
-    Piece *moving_piece = start->getPiece();
+    shared_ptr<Piece> moving_piece = start->getPiece();
     // Move conforms to rules for each piece's movement
     if (!moving_piece->canMove(*this, mv)) {
         throw std::invalid_argument("Illegal move: impossible move");
@@ -223,12 +221,12 @@ void Board::push(shared_ptr<Move>& mv) {
 void Board::undoMove(shared_ptr<Move>& mv) {
     Square *start = mv->getStartSquare();
     Square *end = mv->getEndSquare();
-    Piece *moving_piece = mv->getMovingPiece();
+    shared_ptr<Piece> moving_piece = mv->getMovingPiece();
     // move the moved piece backward
     movePiece(moving_piece, end, start);
     // if there was a killed piece revoke it
     if (mv->isAttack()) {
-        Piece *killed_piece = mv->getKilledPiece();
+        shared_ptr<Piece> killed_piece = mv->getKilledPiece();
         end->place(killed_piece);
     }  
 }

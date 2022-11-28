@@ -20,9 +20,9 @@ class Board: public Subject {
     enum {PAWN=0, KNIGHT, BISHOP, ROOK, QUEEN, KING};
   private:
     vector<vector<Square>> board;
-    vector<Piece*> pieces[NUM_COLORS];
+    vector<shared_ptr<Piece>> pieces[NUM_COLORS];
     vector<shared_ptr<Move>> moves_played;
-    Piece *kings[NUM_COLORS];
+    shared_ptr<Piece> kings[NUM_COLORS];
     bool checked[NUM_COLORS];
     bool checkmated[NUM_COLORS];
     bool stalemated[NUM_COLORS];
@@ -35,7 +35,7 @@ class Board: public Subject {
     bool isLegal(shared_ptr<Move>& mv);
     vector<shared_ptr<Move>> listLegalMoves(int color);
     void removePiece(string coord);
-    void movePiece(Piece *piece, Square *from, Square *to);
+    void movePiece(shared_ptr<Piece>& piece, Square *from, Square *to);
     void doMove(shared_ptr<Move>& mv);
     void undoMove(shared_ptr<Move>& mv);
     int opponent(int color);
