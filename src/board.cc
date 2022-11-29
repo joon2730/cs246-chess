@@ -86,15 +86,15 @@ void Board::init() {
   addPiece(KING, WHITE, "e1");
   // addPiece(BISHOP, WHITE, "f1");
   // addPiece(KNIGHT, WHITE, "g1");
-  // addPiece(ROOK, WHITE, "h1");
+  addPiece(ROOK, WHITE, "h1");
   addPiece(PAWN, WHITE, "a2");
   addPiece(PAWN, WHITE, "b2");
   addPiece(PAWN, WHITE, "c2");
-  addPiece(PAWN, WHITE, "d2");
+  // addPiece(PAWN, WHITE, "d2");
   addPiece(PAWN, WHITE, "e2");
   addPiece(PAWN, WHITE, "f2");
   addPiece(PAWN, WHITE, "g2");
-  addPiece(PAWN, WHITE, "h2");
+  // addPiece(PAWN, WHITE, "h2");
 
   // addPiece(ROOK, BLACK, "a8");
   // addPiece(KNIGHT, BLACK, "b8");

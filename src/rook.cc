@@ -27,17 +27,30 @@ bool Rook::canMove(Board& board, shared_ptr<Move>& mv) {
   }
 
   // cannot move if any square is blocked in between
-  int col_step = sign(end_row - start_row);
+  int col_step = sign(end_col - start_col);
   int row_step = sign(end_row - start_row);
+  std::cout << "start:" << start_col << " " << start_row << std::endl;
+  std::cout << "end:" << end_col << " " << end_row << std::endl;
+  std::cout << "col_step: " << col_step << std::endl;
+  std::cout << "row_step: " << row_step << std::endl;
+
   int cur_col = start_col + col_step;
   int cur_row = start_row + row_step;
+
+  std::cout << "cur_col: " << cur_col << std::endl;
+  std::cout << "cur_row: " << cur_row << std::endl;
 
   while (!(cur_col == end_col && cur_row == end_row)) {
     if (!board.getSquare(cur_row, cur_col)->isEmpty()) {
       return false;
     }
+    std::cout << "_____" << std::endl;
+    std::cout << "Route: " << cur_col << " " << cur_row << std::endl;
+
     cur_col += col_step;
     cur_row += row_step;
+    std::cout << "Route: " << cur_col << " " << cur_row << std::endl;
+    std::cout << "____________" << std::endl;
   }
   return true;
 }
