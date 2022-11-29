@@ -72,38 +72,42 @@ void Board::removePiece(string pos) {}
 
 void Board::init() {
   empty();
-  // addPiece(Pawn, White, "a2");
-  // addPiece(Pawn, White, "b2");
-  // addPiece(Pawn, White, "c2");
-  // addPiece(Pawn, White, "d2");
-  // addPiece(Pawn, White, "e2");
-  // addPiece(Pawn, White, "f2");
-  // addPiece(Pawn, White, "g2");
-  // addPiece(ROOK, WHITE, "a1");
-  // addPiece(KNIGHT, WHITE, "b1");
-  // addPiece(BISHOP, WHITE, "c1");
-  addPiece(QUEEN, WHITE, "d1");
-  addPiece(KING, WHITE, "e1");
-  // addPiece(BISHOP, WHITE, "f1");
-  // addPiece(KNIGHT, WHITE, "g1");
-  addPiece(ROOK, WHITE, "h1");
+  //WHITE
   addPiece(PAWN, WHITE, "a2");
   addPiece(PAWN, WHITE, "b2");
   addPiece(PAWN, WHITE, "c2");
-  // addPiece(PAWN, WHITE, "d2");
+  addPiece(PAWN, WHITE, "d2");
   addPiece(PAWN, WHITE, "e2");
   addPiece(PAWN, WHITE, "f2");
   addPiece(PAWN, WHITE, "g2");
-  // addPiece(PAWN, WHITE, "h2");
+  addPiece(PAWN, WHITE, "h2");
 
-  // addPiece(ROOK, BLACK, "a8");
-  // addPiece(KNIGHT, BLACK, "b8");
-  // addPiece(BISHOP, BLACK, "c8");
+  addPiece(ROOK, WHITE, "a1");
+  addPiece(KNIGHT, WHITE, "b1");
+  addPiece(BISHOP, WHITE, "c1");
+  addPiece(QUEEN, WHITE, "d1");
+  addPiece(KING, WHITE, "e1");
+  addPiece(BISHOP, WHITE, "f1");
+  addPiece(KNIGHT, WHITE, "g1");
+  addPiece(ROOK, WHITE, "h1");
+  // BLACK
+  addPiece(PAWN, BLACK, "a7");
+  addPiece(PAWN, BLACK, "b7");
+  addPiece(PAWN, BLACK, "c7");
+  addPiece(PAWN, BLACK, "d7");
+  addPiece(PAWN, BLACK, "e7");
+  addPiece(PAWN, BLACK, "f7");
+  addPiece(PAWN, BLACK, "g7");
+  addPiece(PAWN, BLACK, "h7");
+
+  addPiece(ROOK, BLACK, "a8");
+  addPiece(KNIGHT, BLACK, "b8");
+  addPiece(BISHOP, BLACK, "c8");
   addPiece(QUEEN, BLACK, "d8");
   addPiece(KING, BLACK, "e8");
-  // addPiece(BISHOP, BLACK, "f8");
-  // addPiece(KNIGHT, BLACK, "g8");
-  // addPiece(ROOK, BLACK, "h8");
+  addPiece(BISHOP, BLACK, "f8");
+  addPiece(KNIGHT, BLACK, "g8");
+  addPiece(ROOK, BLACK, "h8");
   updateState();
 }
 
@@ -282,12 +286,12 @@ Square* Board::getSquare(string pos) {
       return &board[row][col];
     }
   }
-  throw std::invalid_argument("Square out of range");
+  throw std::invalid_argument("Square out of range\n");
 }
 
 Square* Board::getSquare(int row, int col) {
   if (row < 0 || ROWS <= row || col < 0 || COLS <= col) {
-    throw std::invalid_argument("Square out of range");
+    throw std::invalid_argument("Square out of range\n");
   }
   return &board[row][col];
 }

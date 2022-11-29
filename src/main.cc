@@ -1,6 +1,7 @@
 #include "chessgame.h"
 #include "player.h"
 #include "human.h"
+#include "computerlevel1.h"
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -30,7 +31,8 @@ int main() {
     enum {WHITE=0, BLACK};
     while (true) {
         unique_ptr<Player> white = std::make_unique<Human>(WHITE);
-        unique_ptr<Player> black = std::make_unique<Human>(BLACK);
+        // unique_ptr<Player> black = std::make_unique<Human>(BLACK);
+        unique_ptr<Player> black = std::make_unique<ComputerLevel1>(BLACK);
         ChessGame game = ChessGame(white, black);
         game.addDisplay(game.TEXT_DISPLAY);
         game.begin();
