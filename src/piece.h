@@ -6,8 +6,8 @@
 #include <vector>
 
 class Square;
-class Move;
 class Board;
+struct Move;
 
 using std::shared_ptr;
 using std::string;
@@ -23,14 +23,14 @@ class Piece {
  public:
   Piece(int color, int name);
   enum { WHITE = 0, BLACK };
-  void setPosition(Square* sq);
+  void setPosition(Square *sq);
   int getColor();
   Square* getPosition();
   bool isDead();
   bool hasMoved();
   virtual string printText() = 0;
-  virtual bool canMove(Board& board, shared_ptr<Move>& mv) = 0;
-  virtual vector<shared_ptr<Move>> listPossibleMoves(Board& board) = 0;
+  virtual bool canMove(Board& board, Move& mv) = 0;
+  virtual vector<Move> listPossibleMoves(Board& board) = 0;
   virtual ~Piece();
 };
 

@@ -1,14 +1,14 @@
-#ifndef COMPUTERLEVEL1_H
-#define COMPUTERLEVEL1_H
+#ifndef COMPUTERLEVEL2_H
+#define COMPUTERLEVEL2_H
 
 #include "computer.h"
 #include <string>
 
 using std::string;
 
-class ComputerLevel1: public Computer {
+class ComputerLevel2: public Computer {
   public:
-    ComputerLevel1(int side);
+    ComputerLevel2(int side);
     Move makeMove(Board &board) override;
 };
 #endif

@@ -13,7 +13,7 @@ class Player {
   public:
     enum {WHITE=0, BLACK};
     Player(int side);
-    virtual shared_ptr<Move> makeMove(Board &board) = 0;
+    virtual Move makeMove(Board &board) = 0;
     virtual ~Player() = default;
 };
 #endif

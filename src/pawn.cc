@@ -7,17 +7,15 @@
 
 Pawn::Pawn(int color, int name) : Piece(color, name) {}
 
-bool Pawn::canMove(Board& board, shared_ptr<Move>& mv) {
-    Square *start = mv->getStartSquare();
-    Square *end = mv->getEndSquare();
+bool Pawn::canMove(Board& board, Move& mv) {
     // can't move to square with a piece with same color
-    if ((!end->isEmpty()) && (color == end->getPiece()->getColor())) {
+    if ((!mv.end->isEmpty()) && (color == mv.end->getPiece()->getColor())) {
         return false;
     }
-    int hoz_move = dist(start->getCol(), end->getCol());
-    int ver_move = dist(start->getRow(), end->getRow());
-    int ver_step = sign(disp(start->getRow(), end->getRow()));
-    if (end->isEmpty()) {
+    int hoz_move = dist(mv.start->getCol(), mv.end->getCol());
+    int ver_move = dist(mv.start->getRow(), mv.end->getRow());
+    int ver_step = sign(disp(mv.start->getRow(), mv.end->getRow()));
+    if (mv.end->isEmpty()) {
         // cannot move horizontally
         if (hoz_move != 0) {
             return false;
@@ -33,8 +31,8 @@ bool Pawn::canMove(Board& board, shared_ptr<Move>& mv) {
               return false;
             // when it moves 2 squares the square in between has to be empty
             } else if (ver_move == 2) {
-                int cur_col = start->getCol();
-                int cur_row = start->getRow() + ver_step;
+                int cur_col = mv.start->getCol();
+                int cur_row = mv.start->getRow() + ver_step;
                 if (!board.getSquare(cur_row, cur_col)->isEmpty()) {
                   return false;
                 }
@@ -66,15 +64,15 @@ bool Pawn::canMove(Board& board, shared_ptr<Move>& mv) {
 }
 
 
-vector<shared_ptr<Move>> Pawn::listPossibleMoves(Board& board) {
+vector<Move> Pawn::listPossibleMoves(Board& board) {
     // cout << printText() << "\n";
-    vector<shared_ptr<Move>> possible_moves;
+    vector<Move> possible_moves;
     for (int i = 0; i < board.getRows(); ++i) {
         for (int j = 0; j < board.getCols(); ++j) {
             // cout << i << " " << j << "\n";
-            shared_ptr<Move> mv = std::make_shared<Move>(position, board.getSquare(i, j));
+            Move mv = Move(position, board.getSquare(i, j));
             if (canMove(board, mv)) {
-                possible_moves.push_back(std::move(mv));
+                possible_moves.push_back(mv);
             }
         } 
     }

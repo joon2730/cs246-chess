@@ -21,7 +21,7 @@ class Board: public Subject {
   private:
     vector<vector<Square>> board;
     vector<shared_ptr<Piece>> pieces[NUM_COLORS];
-    vector<shared_ptr<Move>> moves_played;
+    vector<Move> moves_played;
     shared_ptr<Piece> kings[NUM_COLORS];
     bool checked[NUM_COLORS];
     bool checkmated[NUM_COLORS];
@@ -32,14 +32,14 @@ class Board: public Subject {
     // checks if the color's king is currently checked
     bool detectChecked(int Color);
     // checks if the move complys the basic chess movement patterns
-    bool isPossible(shared_ptr<Move>& mv);
+    bool isPossible(Move& mv);
     // checks if the move puts own king in check
-    bool isPuttingOwnKingInCheck(shared_ptr<Move>& mv);
+    bool isPuttingOwnKingInCheck(Move& mv);
     void addPiece(int piece, int color, string pos);
     void removePiece(string coord);
     void movePiece(shared_ptr<Piece>& piece, Square *from, Square *to);
-    void doMove(shared_ptr<Move>& mv);
-    void undoMove(shared_ptr<Move>& mv);
+    void doMove(Move& mv);
+    void undoMove(Move& mv);
     int opponent(int color);
   public:
     Board();
@@ -49,10 +49,10 @@ class Board: public Subject {
     bool isChecked(int color);
     bool isCheckmated(int color);
     bool isStalemated(int color);
-    void push(shared_ptr<Move>& mv);
+    void push(Move& mv);
     void pop();
-    bool isLegal(shared_ptr<Move>& mv);
-    vector<shared_ptr<Move>> listLegalMoves(int color);
+    bool isLegal(Move& mv);
+    vector<Move> listLegalMoves(int color);
     // Returns a pointer to Square in board at row and col corresponding to coord; ex: "d4", "e4" 
     Square* getSquare(string pos);
     Square* getSquare(int row, int col);

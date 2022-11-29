@@ -1,9 +1,0 @@
-- make has_moved automatically updated when piece is moved or unmoved 
-    (when unmoved is pretty complicated!)
-- implement board initial configuration feature
-- implement computer player level 123
-
-
-
-- graphic disp
-- level 4

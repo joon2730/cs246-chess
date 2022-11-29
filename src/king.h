@@ -6,8 +6,8 @@ class King: public Piece {
   public:
     King(int color, int name);
     std::string printText() override;
-    bool canMove(Board& board, shared_ptr<Move>& mv) override;
-    std::vector<std::shared_ptr<Move>> listPossibleMoves(Board& board) override;
+    bool canMove(Board& board, Move& mv) override;
+    vector<Move> listPossibleMoves(Board& board) override;
 
 };
 

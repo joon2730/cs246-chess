@@ -7,7 +7,7 @@
 
 Human::Human(int side): Player{side} {}
 
-shared_ptr<Move> Human::makeMove(Board &board) {
+Move Human::makeMove(Board &board) {
     string input;
     while (true) {
         try {
@@ -15,12 +15,12 @@ shared_ptr<Move> Human::makeMove(Board &board) {
                 if (input == "move") {
                     std::string start_pos, end_pos;
                     std::cin >> start_pos >> end_pos;
-                    shared_ptr<Move> mv = createMove(board, start_pos, end_pos);
-                    if (mv->getStartSquare()->isEmpty()) {
+                    Move mv = createMove(board, start_pos, end_pos);
+                    if (mv.start->isEmpty()) {
                         throw std::invalid_argument("No piece to move found\n");
                     } else if (!board.isLegal(mv)) {
                         throw std::invalid_argument("Illegal move\n");
-                    } else if (side != mv->getMovingPiece()->getColor()) {
+                    } else if (side != mv.moving_piece->getColor()) {
                         if (side == WHITE) {
                             throw std::invalid_argument("White's turn\n");
                         } else {
@@ -37,8 +37,8 @@ shared_ptr<Move> Human::makeMove(Board &board) {
     }
 }
 
-shared_ptr<Move> Human::createMove(Board& board, string p1, string p2) {
+Move Human::createMove(Board& board, string p1, string p2) {
     Square *start = board.getSquare(p1);
     Square *end = board.getSquare(p2);
-    return std::make_shared<Move>(start, end);
+    return Move(start, end);
 }

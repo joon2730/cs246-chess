@@ -22,7 +22,7 @@ void ChessGame::takeTurn() {
     // if (state != ACTIVE) {
     //     throw std::logic_error("Game is already done")
     // }
-    shared_ptr<Move> mv = players[player_in_turn]->makeMove(board);
+    Move mv = players[player_in_turn]->makeMove(board);
     board.push(mv);
     board.render();
     player_in_turn = (player_in_turn + 1) % 2; // white if black, black if white
