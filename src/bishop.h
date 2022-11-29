@@ -7,7 +7,7 @@ class Bishop : public Piece {
   Bishop(int color, int name);
   string printText() override;
   bool canMove(Board& board, Move& mv) override;
-  vector<Move> listPossibleMoves(Board& board) override;
+  vector<Move> listPseudoLegalMoves(Board& board) override;
 };
 
 #endif

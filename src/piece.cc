@@ -2,10 +2,6 @@
 
 Piece::Piece(int color, int name): color{color}, name{name}, position{nullptr} {}
 
-Piece::~Piece() {
-    
-}
-
 void Piece::setPosition(Square *sq) {
     position = sq;
 }
@@ -18,8 +14,12 @@ bool Piece::isDead() {
     return position == nullptr;
 }
 
-bool Piece::hasMoved() {
+bool Piece::getHasMoved() {
     return has_moved;
+}
+
+void Piece::setHasMoved(bool has_moved) {
+    this->has_moved = has_moved;
 }
 
 int Piece::getColor() {

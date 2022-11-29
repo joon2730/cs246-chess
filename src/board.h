@@ -32,7 +32,7 @@ class Board: public Subject {
     // checks if the color's king is currently checked
     bool detectChecked(int Color);
     // checks if the move complys the basic chess movement patterns
-    bool isPossible(Move& mv);
+    bool isPseudoLegal(Move& mv);
     // checks if the move puts own king in check
     bool isPuttingOwnKingInCheck(Move& mv);
     void addPiece(int piece, int color, string pos);

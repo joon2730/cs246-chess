@@ -19,19 +19,19 @@ class Piece {
   int name;
   Square* position;
   bool has_moved = false;
-
  public:
-  Piece(int color, int name);
   enum { WHITE = 0, BLACK };
-  void setPosition(Square *sq);
+  Piece(int color, int name);
   int getColor();
+  void setPosition(Square *sq);
   Square* getPosition();
+  bool getHasMoved();
+  void setHasMoved(bool has_moved);
   bool isDead();
-  bool hasMoved();
   virtual string printText() = 0;
   virtual bool canMove(Board& board, Move& mv) = 0;
-  virtual vector<Move> listPossibleMoves(Board& board) = 0;
-  virtual ~Piece();
+  virtual vector<Move> listPseudoLegalMoves(Board& board) = 0;
+  virtual ~Piece() = default;
 };
 
 #endif

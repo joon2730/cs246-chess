@@ -1,8 +1,6 @@
 #include "board.h"
-
 #include <iostream>
 #include <stdexcept>
-
 #include "bishop.h"
 #include "king.h"
 #include "knight.h"
@@ -111,56 +109,59 @@ void Board::init() {
   updateState();
 }
 
-bool Board::isPossible(Move& mv) {
-  Square* start = mv.start;
-  if (start->isEmpty()) {
-    throw std::invalid_argument("Board::isPossible: No piece to move found");
+bool Board::isPseudoLegal(Move& mv) {
+  if (mv.start->isEmpty()) {
+    throw std::invalid_argument("Board::isPseudoLegal: No piece to move found");
   }
+  mv.moving_piece = mv.start->getPiece();
   // piece must be able to reach the square follwing the rule
-  shared_ptr<Piece> moving_piece = start->getPiece();
-  if (moving_piece->canMove(*this, mv)) {
+  if (mv.moving_piece->canMove(*this, mv)) {
+    mv.is_pseudo_legal = true;
     return true;
   }
   return false;
 }
 
 bool Board::isLegal(Move& mv) {
-  if (isPossible(mv) && !isPuttingOwnKingInCheck(mv)) {
+  if (isPseudoLegal(mv) && !isPuttingOwnKingInCheck(mv)) {
+    mv.is_pseudo_legal = true;
+    mv.is_legal = true;
     return true;
   }
   return false;
 }
 
 bool Board::isPuttingOwnKingInCheck(Move& mv) {
-  doMove(mv);
-  bool checked = detectChecked(mv.moving_piece->getColor());
-  undoMove(mv);
-  if (checked) {
-    return true;
+  if (!mv.is_pseudo_legal) {
+    std::invalid_argument("isPuttingOwnKingInCheck: Move not pseudo-legal");
   }
-  return false;
+  doMove(mv);
+  bool own_king_checked = detectChecked(mv.moving_piece->getColor());
+  undoMove(mv);
+  if (!own_king_checked) {
+    mv.is_legal = true;
+    return false;
+  }
+  return true;
 }
 
 vector<Move> Board::listLegalMoves(int color) {
-  // std::cout << "list legal move entered\n";
   vector<Move> res;
   for (auto piece : pieces[color]) {
     // cannot move if piece is dead
     if (piece->isDead()) {
       continue;
     }
-    // get all possible moves for the piece
-    vector<Move> possible_moves = piece->listPossibleMoves(*this);
-    while (possible_moves.size() > 0) {
-      // std::cout << "loop left" << possible_moves.size() << "\n";
-      Move mv = possible_moves.back();
-      possible_moves.pop_back();
+    // get all pseudo_legal moves for the piece
+    vector<Move> pseudo_legal_moves = piece->listPseudoLegalMoves(*this);
+    while (pseudo_legal_moves.size() > 0) {
+      Move mv = pseudo_legal_moves.back();
+      pseudo_legal_moves.pop_back();
       if (!isPuttingOwnKingInCheck(mv)) {
         res.push_back(std::move(mv));
       }
     }
   }
-  // std::cout << "list legal move ended\n";
   return res;
 }
 
@@ -170,8 +171,8 @@ bool Board::detectChecked(int color) {
     if (op->isDead()) {
       continue;
     } else {
-      Move mv = Move{op->getPosition(), king_pos};
-      if (op->canMove(*this, mv)) {
+      Move mv = Move(op->getPosition(), king_pos);
+      if (isPseudoLegal(mv)) {
         return true;
       }
     }
@@ -194,10 +195,6 @@ void Board::updateState() {
       stalemated[color] = false;
     }
     stalemated[color] = false;
-    // checked = false;
-    // for (auto pieces : pieces[opponent(cl)]) {
-    //     if ()
-    // }
   }
 }
 
@@ -207,8 +204,9 @@ void Board::movePiece(shared_ptr<Piece>& piece, Square* from, Square* to) {
 }
 
 void Board::doMove(Move& mv) {
-  if (mv.start->isEmpty()) {
-    throw std::invalid_argument("Board::doMove: No piece to move found");
+  if (!mv.is_pseudo_legal) {
+    // std::cout << *mv.start << " " << *mv.end << << " " << mv.start.getRow() << "\n";
+    throw std::invalid_argument("doMove: Move's Pseudo-legality not checked");
   }
   mv.moving_piece = mv.start->getPiece();
   // if there is a piece being attacked
@@ -216,50 +214,47 @@ void Board::doMove(Move& mv) {
     mv.is_attack = 1;
     mv.killed_piece = mv.end->getPiece();
   }
+  
+  // if the moving piece hasn't moved set is_first_move true
+  if (!mv.moving_piece->getHasMoved()) {
+    mv.is_first_move = true;
+    mv.moving_piece->setHasMoved(true);
+  }
   // move the moving piece
   movePiece(mv.moving_piece, mv.start, mv.end);
-  // std::cout << "doMove ended\n";
 }
 
 void Board::push(Move& mv) {
-  // Square *start = mv.start;
-  // //Square *end = mv.end;
-  // // Start square is not empty
-  // if (start->isEmpty()) {
-  //     throw std::invalid_argument("No moving piece found");
-  // }
-  // shared_ptr<Piece> moving_piece = start->getPiece();
-  // piece must be able to reach the square according to rule
-  if (!isPossible(mv)) {
-    throw std::invalid_argument("Board::push: move not possible");
+  if (!mv.is_legal) {
+    throw std::invalid_argument("push: Move's legality not checked");
   }
   // make movement
   doMove(mv);
-  // move must not put the same color's king in check
-  if (detectChecked(mv.moving_piece->getColor())) {
-    undoMove(mv);
-    throw std::invalid_argument(
-        "Board::push: move puts the same color's king in check");
-  }
-  // update state
+  // update current status
   updateState();
   // record the move
   moves_played.push_back(mv);
 }
 
 void Board::undoMove(Move& mv) {
-  Square* start = mv.start;
-  Square* end = mv.end;
-  shared_ptr<Piece> moving_piece = mv.moving_piece;
+  if (mv.end->isEmpty()) {
+    throw std::invalid_argument("undoMove: no piece to move back found");
+  }
   // move the moved piece backward
-  movePiece(moving_piece, end, start);
+  movePiece(mv.moving_piece, mv.end, mv.start);
   // if there was a killed piece revoke it
   if (mv.is_attack) {
-    end->place(mv.killed_piece);
+    mv.end->place(mv.killed_piece);
+  }
+  if (mv.is_first_move) {
+    mv.moving_piece->setHasMoved(false);
   }
 }
 
 void Board::pop() {
+  if (moves_played.size() == 0) {
+    std::logic_error("pop: No move to pop found");
+  }
   // recall the last move
   Move& mv = moves_played.back();
   moves_played.pop_back();

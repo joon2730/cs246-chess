@@ -3,12 +3,10 @@
 
 #include <memory>
 #include <utility>
-
-using std::string;
-using std::vector;
-using std::shared_ptr;
 class Square;
 class Piece;
+
+using std::shared_ptr;
 
 struct Move {
     Move(Square *start, Square *end): start{start}, end{end} {}
@@ -21,7 +19,9 @@ struct Move {
     bool is_promotion = false;
     bool is_castling = false;
     bool is_resign = false;
-    bool is_fisrt_move = false;
+    bool is_first_move = false;
     bool is_pseudo_legal = false;
+    bool is_legal = false;
+
 };
 #endif

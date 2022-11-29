@@ -32,22 +32,21 @@ bool Bishop::canMove(Board& board, Move& mv) {
     cur_col += col_step;
     cur_row += row_step;
   }
+  mv.is_pseudo_legal = true;
   return true;
 }
 
-vector<Move> Bishop::listPossibleMoves(Board& board) {
-    // cout << printText() << "\n";
-    vector<Move> possible_moves;
+vector<Move> Bishop::listPseudoLegalMoves(Board& board) {
+    vector<Move> pseudo_legal_moves;
     for (int i = 0; i < board.getRows(); ++i) {
         for (int j = 0; j < board.getCols(); ++j) {
-            // cout << i << " " << j << "\n";
             Move mv = Move(position, board.getSquare(i, j));
             if (canMove(board, mv)) {
-                possible_moves.push_back(mv);
+                pseudo_legal_moves.push_back(mv);
             }
         } 
     }
-    return possible_moves;
+    return pseudo_legal_moves;
 }
 
 std::string Bishop::printText() {
