@@ -2,15 +2,16 @@
 #include "human.h"
 #include "textdisplay.h"
 
-ChessGame::ChessGame(unique_ptr<Player>& white, unique_ptr<Player>& black) {
+ChessGame::ChessGame() {
+    board.init();
+    board.render();
+}
+
+void ChessGame::begin(unique_ptr<Player>& white, unique_ptr<Player>& black) {
     state = ACTIVE;
     player_in_turn = board.WHITE;
     players[0] = std::move(white);
     players[1] = std::move(black);
-}
-
-void ChessGame::begin() {
-    board.init();
     board.render();
 }
 

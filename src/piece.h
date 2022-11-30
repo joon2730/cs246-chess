@@ -23,6 +23,7 @@ class Piece {
   enum { WHITE = 0, BLACK };
   Piece(int color, int name);
   int getColor();
+  int getName();
   void setPosition(Square *sq);
   Square* getPosition();
   bool getHasMoved();

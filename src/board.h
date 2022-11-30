@@ -19,6 +19,9 @@ class Board: public Subject {
     enum {WHITE=0, BLACK};
     enum {PAWN=0, KNIGHT, BISHOP, ROOK, QUEEN, KING};
   private:
+    // struct Config {
+      
+    // };
     vector<vector<Square>> board;
     vector<shared_ptr<Piece>> pieces[NUM_COLORS];
     vector<Move> moves_played;
@@ -32,11 +35,11 @@ class Board: public Subject {
     // checks if the color's king is currently checked
     bool detectChecked(int Color);
     // checks if the move complys the basic chess movement patterns
-    bool isPseudoLegal(Move& mv);
     // checks if the move puts own king in check
-    bool isPuttingOwnKingInCheck(Move& mv);
     void addPiece(int piece, int color, string pos);
     void removePiece(string coord);
+    bool isPseudoLegal(Move& mv);
+    bool isPuttingOwnKingInCheck(Move& mv);
     void movePiece(shared_ptr<Piece>& piece, Square *from, Square *to);
     void doMove(Move& mv);
     void undoMove(Move& mv);
@@ -52,6 +55,7 @@ class Board: public Subject {
     void push(Move& mv);
     void pop();
     bool isLegal(Move& mv);
+    bool isDangerousFor(Square *sq, int color);
     vector<Move> listLegalMoves(int color);
     // Returns a pointer to Square in board at row and col corresponding to coord; ex: "d4", "e4" 
     Square* getSquare(string pos);

@@ -26,3 +26,8 @@ int Piece::getColor() {
     return color;
 }
 
+int Piece::getName() {
+    return name;
+}
+
+

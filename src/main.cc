@@ -30,15 +30,18 @@ using std::unique_ptr;
 int main() {
     enum {WHITE=0, BLACK};
     while (true) {
+        // before game begins
+        ChessGame game = ChessGame();
         unique_ptr<Player> white = std::make_unique<Human>(WHITE);
         // unique_ptr<Player> black = std::make_unique<Human>(BLACK);
         unique_ptr<Player> black = std::make_unique<ComputerLevel1>(BLACK);
-        ChessGame game = ChessGame(white, black);
         game.addDisplay(game.TEXT_DISPLAY);
-        game.begin();
+        game.begin(white, black);
+        // in game
         while (game.getState() == game.ACTIVE) {
             game.takeTurn();
         }
+        // after game ends
     }
 }
  

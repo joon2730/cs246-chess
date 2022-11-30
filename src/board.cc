@@ -145,6 +145,20 @@ bool Board::isPuttingOwnKingInCheck(Move& mv) {
   return true;
 }
 
+bool Board::isDangerousFor(Square *sq, int color) {
+  for (auto op : pieces[opponent(color)]) {
+    if (op->isDead()) {
+      continue;
+    } else {
+      Move mv = Move(op->getPosition(), sq);
+      if (isPseudoLegal(mv)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 vector<Move> Board::listLegalMoves(int color) {
   vector<Move> res;
   for (auto piece : pieces[color]) {
@@ -167,17 +181,7 @@ vector<Move> Board::listLegalMoves(int color) {
 
 bool Board::detectChecked(int color) {
   Square* king_pos = kings[color]->getPosition();
-  for (auto op : pieces[opponent(color)]) {
-    if (op->isDead()) {
-      continue;
-    } else {
-      Move mv = Move(op->getPosition(), king_pos);
-      if (isPseudoLegal(mv)) {
-        return true;
-      }
-    }
-  }
-  return false;
+  return isDangerousFor(king_pos, color);
 }
 
 void Board::updateState() {
@@ -211,17 +215,33 @@ void Board::doMove(Move& mv) {
   mv.moving_piece = mv.start->getPiece();
   // if there is a piece being attacked
   if (!mv.end->isEmpty()) {
-    mv.is_attack = 1;
+    mv.is_attack = true;
     mv.killed_piece = mv.end->getPiece();
   }
-  
-  // if the moving piece hasn't moved set is_first_move true
-  if (!mv.moving_piece->getHasMoved()) {
-    mv.is_first_move = true;
-    mv.moving_piece->setHasMoved(true);
+
+  // castling
+  if (mv.is_kingside_castling) {
+    int f_file = 'f' - 'a';
+    int g_file = 'g' - 'a';
+    auto rook = mv.end->getPiece();
+    movePiece(mv.moving_piece, mv.start, getSquare(mv.start->getRow(), g_file));
+    movePiece(rook, mv.end, getSquare(mv.end->getRow(), f_file));
+  } else if (mv.is_queenside_castling) {
+    int c_file = 'c' - 'a';
+    int d_file = 'd' - 'a';
+    auto rook = mv.end->getPiece();
+    movePiece(mv.moving_piece, mv.start, getSquare(mv.start->getRow(), c_file));
+    movePiece(rook, mv.end, getSquare(mv.end->getRow(), d_file));
+  // normal move
+  } else {
+    // if the moving piece hasn't moved set is_first_move true
+    if (!mv.moving_piece->getHasMoved()) {
+      mv.is_first_move = true;
+      mv.moving_piece->setHasMoved(true);
+    }
+    // move the moving piece
+    movePiece(mv.moving_piece, mv.start, mv.end);
   }
-  // move the moving piece
-  movePiece(mv.moving_piece, mv.start, mv.end);
 }
 
 void Board::push(Move& mv) {
@@ -237,17 +257,31 @@ void Board::push(Move& mv) {
 }
 
 void Board::undoMove(Move& mv) {
-  if (mv.end->isEmpty()) {
-    throw std::invalid_argument("undoMove: no piece to move back found");
-  }
-  // move the moved piece backward
-  movePiece(mv.moving_piece, mv.end, mv.start);
-  // if there was a killed piece revoke it
-  if (mv.is_attack) {
-    mv.end->place(mv.killed_piece);
-  }
-  if (mv.is_first_move) {
-    mv.moving_piece->setHasMoved(false);
+  if (mv.is_kingside_castling) {
+    int f_file = 'f' - 'a';
+    int g_file = 'g' - 'a';
+    auto rook = getSquare(mv.end->getRow(), f_file)->getPiece();
+    movePiece(mv.moving_piece, getSquare(mv.start->getRow(), g_file), mv.start);
+    movePiece(rook, getSquare(mv.end->getRow(), f_file), mv.end);
+  } else if (mv.is_queenside_castling) {
+    int c_file = 'c' - 'a';
+    int d_file = 'c' - 'a';
+    auto rook = getSquare(mv.end->getRow(), d_file)->getPiece();
+    movePiece(mv.moving_piece, getSquare(mv.start->getRow(), c_file), mv.start);
+    movePiece(rook, getSquare(mv.end->getRow(), d_file), mv.end);
+  } else {
+    if (mv.end->isEmpty()) {
+      throw std::invalid_argument("undoMove: no piece to move back found");
+    }
+    // move the moved piece backward
+    movePiece(mv.moving_piece, mv.end, mv.start);
+    // if there was a killed piece revoke it
+    if (mv.is_attack) {
+      mv.end->place(mv.killed_piece);
+    }
+    if (mv.is_first_move) {
+      mv.moving_piece->setHasMoved(false);
+    }
   }
 }
 

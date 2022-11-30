@@ -17,7 +17,8 @@ struct Move {
     bool is_attack = false;
     bool is_enpassant = false;
     bool is_promotion = false;
-    bool is_castling = false;
+    bool is_kingside_castling = false;
+    bool is_queenside_castling = false;
     bool is_resign = false;
     bool is_first_move = false;
     bool is_pseudo_legal = false;

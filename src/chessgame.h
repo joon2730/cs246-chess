@@ -20,9 +20,9 @@ class ChessGame {
   public:
     enum {TEXT_DISPLAY=0, GRAPHIC_DISPLAY};
     enum {ACTIVE=0, WHITE_WIN, BLACK_WIN, STALEMATE};
-    ChessGame(unique_ptr<Player>& white, unique_ptr<Player>& black);
-    void begin();
+    ChessGame();
     void setup();
+    void begin(unique_ptr<Player>& white, unique_ptr<Player>& blac);
     void takeTurn();
     void resign(int player);
     void addDisplay(int display);
