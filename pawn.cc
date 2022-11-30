@@ -8,6 +8,7 @@
 Pawn::Pawn(int color, int name) : Piece(color, name) {}
 
 bool Pawn::canMove(Board& board, Move& mv) {
+        try {
     // can't move to square with a piece with same color
     if ((!mv.end->isEmpty()) && (color == mv.end->getPiece()->getColor())) {
         return false;
@@ -52,9 +53,6 @@ bool Pawn::canMove(Board& board, Move& mv) {
         } else if (target->getPiece()->getName() != board.PAWN) {
             return false;
         }
-        if (board.getNumMovesPlayed() <= 0) {
-            return false;
-        }
         Move last_move = board.getLastMove();
         if (last_move.moving_piece != target->getPiece()) {
             return false;
@@ -72,24 +70,16 @@ bool Pawn::canMove(Board& board, Move& mv) {
         if (!(ver_step < 0)) {
             return false;
         }
-    //     // promotion
-    //     int rank_8 = '8' - '8';
-    //     if (mv.end->getRow() == rank_8) {
-    // // std::cout << *mv.start << " " << *mv.end << " " << " promotion\n";
-    //         mv.is_promotion = true;
-    //     }
     } else if (color == BLACK) {
-        // if not move toward white's side
-        if (!(ver_step > 0)) {
+      // if not move toward white's side
+      if (!(ver_step > 0)) {
             return false;
         }
-        // // promotion
-        // int rank_1 = '8' - '1';
-        // if (mv.end->getRow() == rank_1) {
-        //     mv.is_promotion = true;
-        // }
     }
     mv.is_pseudo_legal = true;
+        } catch (...) {
+            std::cout << "here\n";
+        }
     return true;
 }
 

@@ -8,7 +8,7 @@
 King::King(int color, int name) : Piece(color, name) {}
 
 bool King::canMove(Board& board, Move& mv) {
-
+  try {
   
   // normal move
   if (mv.end->isEmpty() || color != mv.end->getPiece()->getColor()) {
@@ -69,6 +69,9 @@ bool King::canMove(Board& board, Move& mv) {
     }
   }
   mv.is_pseudo_legal = true;
+  } catch (...) {
+            std::cout << "here\n";
+        }
   return true;
 }
 

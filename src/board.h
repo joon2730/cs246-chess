@@ -37,6 +37,7 @@ class Board: public Subject {
     // checks if the move complys the basic chess movement patterns
     // checks if the move puts own king in check
     void addPiece(int piece, int color, string pos);
+    void addPiece(int piece, int color, Square *sq);
     void removePiece(string coord);
     bool isPseudoLegal(Move& mv);
     bool isPuttingOwnKingInCheck(Move& mv);
@@ -57,6 +58,8 @@ class Board: public Subject {
     bool isLegal(Move& mv);
     bool isDangerousFor(Square *sq, int color);
     vector<Move> listLegalMoves(int color);
+    int getNumMovesPlayed();
+    Move getLastMove();
     // Returns a pointer to Square in board at row and col corresponding to coord; ex: "d4", "e4" 
     Square* getSquare(string pos);
     Square* getSquare(int row, int col);
