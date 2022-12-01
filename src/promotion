@@ -8,3 +8,5 @@ move a6 a7
 move h3 h2
 move a7 a8
 move h2 h1
+move a8 h1
+

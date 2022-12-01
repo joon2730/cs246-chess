@@ -155,73 +155,82 @@ bool Board::isLegal(Move& mv) {
 }
 
 bool Board::isPuttingOwnKingInCheck(Move& mv) {
+  // std::cout << "< isPuttingOwnKingInCheck\n";
   if (!mv.is_pseudo_legal) {
-    std::invalid_argument("isPuttingOwnKingInCheck: Move not pseudo-legal");
+    // std::invalid_argument("isPuttingOwnKingInCheck: Move not pseudo-legal");
   }
   doMove(mv);
   bool own_king_checked;
   own_king_checked = detectChecked(mv.moving_piece->getColor());
   undoMove(mv);
-    std::cout << "?? " << mv << own_king_checked << "<----";
-  // if (!own_king_checked) {
-  //   mv.is_legal = true;
-  //   return false;
-  // }
+  // std::cout << "res: " << own_king_checked << "\n";
+  // std::cout << "isPuttingOwnKingInCheck >\n";
+  if (!own_king_checked) {
+    mv.is_legal = true;
+    return false;
+  }
   return false;
 }
 
 bool Board::isDangerousFor(Square *sq, int color) {
-  std::cout << "running\n";
-
+  // std::cout << "< isDangerousFor\n";
   for (auto op : pieces[opponent(color)]) {
     if (op->isDead()) {
       continue;
     } else {
       Move mv = Move(op->getPosition(), sq);
       if (isPseudoLegal(mv)) {
+        // std::cout << "res: true\n";
+        // std::cout << "isDangerousFor >\n";
         return true;
       }
     }
   }
-  std::cout << "??????";
+  // std::cout << "res: false\n";
+  // std::cout << "isDangerousFor >\n";
   return false;
 }
 
 vector<Move> Board::listLegalMoves(int color) {
-    std::cout << "list start\n";
+    // std::cout << "< listLegalMoves\n";
   vector<Move> res;
-  for (auto piece : pieces[color]) {
+  int len = pieces[color].size();
+  for (std::size_t i = 0; i < len; ++i) {
+    auto piece = pieces[color].at(i);
     // cannot move if piece is dead
+    // std::cout << " continue loop";
     if (piece->isDead()) {
       continue;
     }
-    std::cout << "now: " << *piece->getPosition() << " " << "\n";
+    // std::cout << "  now: " << *piece->getPosition() << " " << "\n";
     // get all pseudo_legal moves for the piece
     vector<Move> pseudo_legal_moves = piece->listPseudoLegalMoves(*this);
     while (pseudo_legal_moves.size() > 0) {
       Move mv = pseudo_legal_moves.back();
       pseudo_legal_moves.pop_back();
-    std::cout << "putting now: " << *piece->getPosition() << "\n";
+    // std::cout << "  before calling isPuttingOwnKingInCheck for: " << *piece->getPosition() << "\n";
 
       if (!isPuttingOwnKingInCheck(mv)) {
         res.push_back(std::move(mv));
       }
+    // std::cout << " move to next \n";
     }
   }
-    std::cout << "list end\n";
+    // std::cout << "listLegalMoves >\n";
   return res;
 }
 
 bool Board::detectChecked(int color) {
+  // std::cout << "< detectChecked \n";
   Square* king_pos = kings[color]->getPosition();
   bool res = isDangerousFor(king_pos, color);
-  std::cout << "ha! \n";
-  std::cout << res << "printed";
+  // std::cout << "  res: " << res << "\n";
+  // std::cout << "detectChecked >\n";
   return res;
 }
 
 void Board::updateState() {
-  std::cout << "< updateState\n";
+  // std::cout << "< updateState\n";
   for (int color = WHITE; color < NUM_COLORS; ++color) {
     checked[color] = detectChecked(color);
     vector<Move> legal_moves = listLegalMoves(color);
@@ -237,8 +246,7 @@ void Board::updateState() {
     }
     stalemated[color] = false;
   }
-  std::cout << "updateState >\n";
-
+  // std::cout << "updateState >\n";
 }
 
 void Board::movePiece(shared_ptr<Piece>& piece, Square* from, Square* to) {
@@ -286,18 +294,18 @@ void Board::doMove(Move& mv) {
     
     // promotion
     if (mv.is_promotion) {
-      std::cout << "< domove pro\n";
-      std::cout << mv;
+      // std::cout << "< doMove if promotion\n";
+      // std::cout << mv;
       mv.retired_piece = mv.moving_piece;
       mv.start->empty();
       mv.end->empty();
       // if (!(KNIGHT <= mv.promote_to && mv.promote_to <= QUEEN)) {
       //   throw std::invalid_argument("doMove: Cannot promote to this piece");
       // }
-      addPiece(QUEEN, mv.moving_piece->getColor(), mv.end);
+      addPiece(mv.promote_to, mv.moving_piece->getColor(), mv.end);
       mv.moving_piece = mv.end->getPiece();
-      std::cout << mv;
-      std::cout << "domove pro >\n";
+      // std::cout << mv;
+      // std::cout << "doMove if promotion >\n";
       // mv.start->empty();
       // addPiece(mv.promote_to, mv.moving_piece->getColor(), mv.end);
       // mv.retired_piece = mv.moving_piece;
@@ -339,25 +347,24 @@ void Board::undoMove(Move& mv) {
     movePiece(rook, getSquare(mv.end->getRow(), d_file), mv.end);
   // not a castling
   } else {
-    
     // if it was promotion
     if (mv.is_promotion) {
-      std::cout << "< undo here\n";
+      // std::cout << "< undoMove if promotion\n";
       // mv.end->empty();÷
       // mv.start->place(mv.moving_piece);
-      std::cout << mv;
+      // std::cout << mv;
       mv.start->empty();
       mv.end->empty();
       if (mv.retired_piece == nullptr) {
         throw std::logic_error("no retired piece found");
       }
       mv.start->place(mv.retired_piece);
-      // pieces[mv.moving_piece->getColor()].pop_back();
+      pieces[mv.moving_piece->getColor()].pop_back();
       mv.moving_piece = mv.retired_piece;
       // movePiece(mv.retired_piece, mv.end, mv.start);
-      std::cout << mv;
-      std::cout << "undo here >\n";
-
+      // std::cout << mv;
+      // std::cout << "undoMove if promotion >\n";
+    // not a promotion
     } else {
       // move the moved piece backward
       movePiece(mv.moving_piece, mv.end, mv.start);
@@ -372,8 +379,6 @@ void Board::undoMove(Move& mv) {
     if (mv.is_first_move) {
       mv.moving_piece->setHasMoved(false);
     }
-      std::cout << "undo comp-ly end here >\n";
-
   }
 }
 

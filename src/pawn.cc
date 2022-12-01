@@ -72,22 +72,22 @@ bool Pawn::canMove(Board& board, Move& mv) {
         if (!(ver_step < 0)) {
             return false;
         }
-    //     // promotion
-    //     int rank_8 = '8' - '8';
-    //     if (mv.end->getRow() == rank_8) {
-    // // std::cout << *mv.start << " " << *mv.end << " " << " promotion\n";
-    //         mv.is_promotion = true;
-    //     }
+        // promotion
+        int rank_8 = '8' - '8';
+        if (mv.end->getRow() == rank_8) {
+    // std::cout << *mv.start << " " << *mv.end << " " << " promotion\n";
+            mv.is_promotion = true;
+        }
     } else if (color == BLACK) {
         // if not move toward white's side
         if (!(ver_step > 0)) {
             return false;
         }
-        // // promotion
-        // int rank_1 = '8' - '1';
-        // if (mv.end->getRow() == rank_1) {
-        //     mv.is_promotion = true;
-        // }
+        // promotion
+        int rank_1 = '8' - '1';
+        if (mv.end->getRow() == rank_1) {
+            mv.is_promotion = true;
+        }
     }
     mv.is_pseudo_legal = true;
     return true;
