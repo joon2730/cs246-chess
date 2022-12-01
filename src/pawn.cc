@@ -75,7 +75,6 @@ bool Pawn::canMove(Board& board, Move& mv) {
         // promotion
         int rank_8 = '8' - '8';
         if (mv.end->getRow() == rank_8) {
-    // std::cout << *mv.start << " " << *mv.end << " " << " promotion\n";
             mv.is_promotion = true;
         }
     } else if (color == BLACK) {
