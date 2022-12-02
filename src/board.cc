@@ -78,9 +78,8 @@ void Board::addPiece(int piece, int color, Square *sq) {
 
 void Board::removePiece(string pos) {}
 void Board::removePiece(shared_ptr<Piece>& pc) {
-    if (!pc->isDead()) {
-        num_alive_pieces[pc->getColor()][pc->getName()] -= 1;
-    }
+    pc->getPosition()->empty();
+    num_alive_pieces[pc->getColor()][pc->getName()] -= 1;
     int color = pc->getColor();
     int len = pieces[color].size();
     for (int i = len - 1; i >= 0; --i) {
@@ -89,7 +88,6 @@ void Board::removePiece(shared_ptr<Piece>& pc) {
             return;
         }
     }
-
 }
 
 void Board::init() {
@@ -162,15 +160,15 @@ bool Board::isChecking(Move& mv, int color) {
   }
 //   std::cout << "(isChecking\n";
 //   std::cout << "before move --------\n";
-  notifyObservers();
+//   notifyObservers();
   doMove(mv);
   bool checked;
   checked = detectChecked(color);
 //   std::cout << "after move --------\n";
-  notifyObservers();
+//   notifyObservers();
   undoMove(mv);
 //   std::cout << "undo move --------\n";
-  notifyObservers();
+//   notifyObservers();
 //   std::cout << "isChecking)\n";
   if (!checked) {
     mv.is_legal = true;
@@ -217,7 +215,6 @@ vector<Move> Board::listLegalMoves(int color) {
   }
 //   std::cout << "exit listLegalMoves)\n";
   return res;
-
 }
 
 bool Board::detectChecked(int color) {
@@ -253,18 +250,8 @@ void Board::doMove(Move& mv) {
   if (!mv.is_pseudo_legal) {
     throw std::invalid_argument("doMove: Move's Pseudo-legality not checked");
   }
+  // set moving piece
   mv.moving_piece = mv.start->getPiece();
-  // en passant
-  if (mv.is_enpassant) {
-    mv.is_attack = true;
-    Square *target = getSquare(mv.start->getRow(), mv.end->getCol());
-    mv.killed_piece = target->getPiece();
-    target->empty();
-  // normal attack
-  } else if (!mv.end->isEmpty()) {
-    mv.is_attack = true;
-    mv.killed_piece = mv.end->getPiece();
-  }
   // castling
   if (mv.is_kingside_castling) {
     int f_file = 'f' - 'a';
@@ -284,6 +271,19 @@ void Board::doMove(Move& mv) {
     rook->setHasMoved(true);
   // not a castling
   } else {
+    // set move variables
+    // en passant
+    if (mv.is_enpassant) {
+        mv.is_attack = true;
+        Square *target = getSquare(mv.start->getRow(), mv.end->getCol());
+        mv.killed_piece = target->getPiece();
+        target->empty();
+    // normal attack
+    } else if (!mv.end->isEmpty()) {
+        mv.is_attack = true;
+        mv.killed_piece = mv.end->getPiece();
+    }
+    // moving the piece
     // promotion
     if (mv.is_promotion) {
       mv.retired_piece = mv.moving_piece;
@@ -294,13 +294,14 @@ void Board::doMove(Move& mv) {
       }
       addPiece(mv.promote_to, mv.moving_piece->getColor(), mv.end);
       mv.moving_piece = mv.end->getPiece();
+    // not promotion
     } else {
       // move the moving piece
       movePiece(mv.moving_piece, mv.start, mv.end);
     }
   }
 
-
+  // update relative variables
   // if the moving piece hasn't moved set is_first_move true
   if (!mv.moving_piece->getHasMoved()) {
     mv.is_first_move = true;
@@ -309,6 +310,9 @@ void Board::doMove(Move& mv) {
   // keep track of the number of pieces alive
   if (mv.is_attack) {
     num_alive_pieces[mv.killed_piece->getColor()][mv.killed_piece->getName()] -= 1;
+  }
+  if (mv.is_promotion) {
+    num_alive_pieces[mv.retired_piece->getColor()][PAWN] -= 1;
   }
 }
 
@@ -350,13 +354,12 @@ void Board::undoMove(Move& mv) {
     // if it was promotion
     if (mv.is_promotion) {
       mv.start->empty();
-      mv.end->empty();
+      removePiece(mv.moving_piece);
       if (mv.retired_piece == nullptr) {
         throw std::logic_error("no retired piece found");
       }
-      mv.start->place(mv.retired_piece);
-      removePiece(mv.moving_piece);
       mv.moving_piece = mv.retired_piece;
+      mv.start->place(mv.retired_piece);
     // not a promotion
     } else {
       // move the moved piece backward
@@ -370,7 +373,8 @@ void Board::undoMove(Move& mv) {
       mv.end->place(mv.killed_piece);
     }
   }
-
+  
+  // set reletive variables
   // set has_moved back to false if it was first move
   if (mv.is_first_move) {
     mv.moving_piece->setHasMoved(false);
@@ -378,6 +382,10 @@ void Board::undoMove(Move& mv) {
   // keep track of the number of pieces alive
   if (mv.is_attack) {
     num_alive_pieces[mv.killed_piece->getColor()][mv.killed_piece->getName()] += 1;
+  }
+  // 
+  if (mv.is_promotion) {
+    num_alive_pieces[mv.retired_piece->getColor()][PAWN] += 1;
   }
 }
 
@@ -438,6 +446,21 @@ bool Board::isChecked(int color) { return checked[color]; }
 bool Board::isCheckmated(int color) { return checkmated[color]; }
 
 bool Board::isStalemated(int color) { return stalemated[color]; }
+
+bool Board::isInsufficientMaterial() {
+    if (num_alive_pieces[WHITE][PAWN] + num_alive_pieces[WHITE][QUEEN] 
+        + num_alive_pieces[WHITE][ROOK] > 0) {
+        return false;
+    } else if (num_alive_pieces[BLACK][PAWN] + num_alive_pieces[BLACK][QUEEN] 
+        + num_alive_pieces[BLACK][ROOK] > 0) {
+        return false;
+    } else if (num_alive_pieces[WHITE][KNIGHT] + num_alive_pieces[WHITE][BISHOP] > 1) {
+        return false;
+    } else if (num_alive_pieces[BLACK][KNIGHT] + num_alive_pieces[BLACK][BISHOP] > 1) {
+        return false;
+    }
+    return true;
+}
 
 int Board::getRows() { return ROWS; }
 

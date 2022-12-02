@@ -35,6 +35,9 @@ void ChessGame::takeTurn() {
         }
     } else if (board.isStalemated(player_in_turn)) {
         state = STALEMATE;
+    // not in question--------!!!!!!
+    } else if (board.isInsufficientMaterial()) {
+        state = INSUFFICIENT_MATERIAL;
     }
 }
 

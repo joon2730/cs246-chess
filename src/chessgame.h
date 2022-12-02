@@ -19,7 +19,7 @@ class ChessGame {
     int player_in_turn;
   public:
     enum {TEXT_DISPLAY=0, GRAPHIC_DISPLAY};
-    enum {ACTIVE=0, WHITE_WIN, BLACK_WIN, STALEMATE};
+    enum {ACTIVE=0, WHITE_WIN, BLACK_WIN, STALEMATE, INSUFFICIENT_MATERIAL};
     ChessGame();
     void setup();
     void begin(unique_ptr<Player>& white, unique_ptr<Player>& blac);

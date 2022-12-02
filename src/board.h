@@ -54,6 +54,7 @@ class Board: public Subject {
     bool isChecked(int color);
     bool isCheckmated(int color);
     bool isStalemated(int color);
+    bool isInsufficientMaterial();
     void push(Move& mv);
     void pop();
     bool isLegal(Move& mv);

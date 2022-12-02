@@ -30,7 +30,7 @@ using std::unique_ptr;
 
 int main() {
     enum {WHITE=0, BLACK};
-    while (true) {
+    // while (true) {
         // before game begins
         ChessGame game = ChessGame();
         // unique_ptr<Player> white = std::make_unique<Human>(WHITE);
@@ -44,6 +44,6 @@ int main() {
             game.takeTurn();
         }
         // after game ends
-    }
+    // }
 }
  

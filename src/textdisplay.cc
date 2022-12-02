@@ -40,7 +40,11 @@ void TextDisplay::notify() {
       }
     } else if (subject->isStalemated(color)) {
       out << "Stalemate\n";
+    // for testing
+    } else if (subject->isInsufficientMaterial()) {
+      out << "Insufficint Material\n";
     }
+    //
   }
   out << "\n";
 }
