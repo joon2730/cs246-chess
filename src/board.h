@@ -58,7 +58,7 @@ class Board: public Subject {
     void push(Move& mv);
     void pop();
     bool isLegal(Move& mv);
-    bool isDangerousFor(Square *sq, int color);
+    bool isDangerousFor(Square *sq, shared_ptr<Piece>& piece);
     bool isChecking(Move& mv, int color);
     vector<Move> listLegalMoves(int color);
     int getNumMovesPlayed();

@@ -50,11 +50,11 @@ int ComputerLevel3::evaluateMove (Board& board, Move& mv) {
     }
     // prefers avoding capture
     // preferes moving to a safe square
-    if (!board.isDangerousFor(mv.end, side)) {
+    if (!board.isDangerousFor(mv.end, mv.moving_piece)) {
         ++score;
     }
     // prefers moving a piece in danger of being captured
-    if (board.isDangerousFor(mv.start, side)) {
+    if (board.isDangerousFor(mv.start, mv.moving_piece)) {
         ++score;
     }
     return score;

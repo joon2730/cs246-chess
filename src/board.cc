@@ -169,14 +169,25 @@ bool Board::isChecking(Move& mv, int color) {
   return true;
 }
 
-bool Board::isDangerousFor(Square *sq, int color) {
+bool Board::isDangerousFor(Square *sq, shared_ptr<Piece>& piece) {
+  int color = piece->getColor();
   for (auto op : pieces[opponent(color)]) {
     if (op->isDead()) {
       continue;
     } else {
       Move mv = Move(op->getPosition(), sq);
-      if (isPseudoLegal(mv)) {
-        return true;
+      if (piece->getName() == KING) {
+        if (isPseudoLegal(mv)) {
+          return true;
+        }
+      } else {
+        Square *piece_pos = piece->getPosition();
+        piece_pos->empty();
+        bool res = isLegal(mv);
+        piece_pos->place(piece);
+        if (res) {
+          return true;
+        }
       }
     }
   }
@@ -205,7 +216,7 @@ vector<Move> Board::listLegalMoves(int color) {
 
 bool Board::detectChecked(int color) {
   Square* king_pos = kings[color]->getPosition();
-  bool res = isDangerousFor(king_pos, color);
+  bool res = isDangerousFor(king_pos, kings[color]);
   return res;
 }
 

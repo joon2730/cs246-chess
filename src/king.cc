@@ -59,10 +59,11 @@ bool King::canMove(Board& board, Move& mv) {
     }
     // All squares between king's initial and final squares must be vacant AND unattacked
     int king_cur_col = mv.start->getCol() + king_step;
+    auto my_shared_ptr = position->getPiece();
     while (king_cur_col != king_end) {
       if (!board.getSquare(mv.start->getRow(), king_cur_col)->isEmpty()) {
         return false;
-      } else if (board.isDangerousFor(board.getSquare(mv.start->getRow(), king_cur_col), color)) {
+      } else if (board.isDangerousFor(board.getSquare(mv.start->getRow(), king_cur_col), my_shared_ptr)) {
         return false;
       }
       king_cur_col += king_step;
