@@ -1,6 +1,6 @@
 #include "computerlevel1.h"
 #include <cstdlib>
-#include <time.h>
+#include <ctime>
 
 
 ComputerLevel1::ComputerLevel1(int side): Computer{side} {
@@ -10,5 +10,6 @@ ComputerLevel1::ComputerLevel1(int side): Computer{side} {
 Move ComputerLevel1::makeMove(Board &board) {
     auto legal_moves = board.listLegalMoves(side);
     int len = legal_moves.size();
-    return legal_moves.at(std::rand() % len);
+    int randint = std::rand();
+    return legal_moves.at(randint % len);
 }

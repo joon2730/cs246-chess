@@ -3,6 +3,7 @@
 #include "human.h"
 #include "computerlevel1.h"
 #include "computerlevel2.h"
+#include "computerlevel3.h"
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -34,9 +35,9 @@ int main() {
         // before game begins
         ChessGame game = ChessGame();
         // unique_ptr<Player> white = std::make_unique<Human>(WHITE);
-        unique_ptr<Player> white = std::make_unique<ComputerLevel2>(WHITE);
+        unique_ptr<Player> white = std::make_unique<ComputerLevel3>(WHITE);
         // unique_ptr<Player> black = std::make_unique<Human>(BLACK);
-        unique_ptr<Player> black = std::make_unique<ComputerLevel2>(BLACK);
+        unique_ptr<Player> black = std::make_unique<ComputerLevel3>(BLACK);
         game.addDisplay(game.TEXT_DISPLAY);
         game.begin(white, black);
         // in game

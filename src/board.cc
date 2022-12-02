@@ -158,18 +158,10 @@ bool Board::isChecking(Move& mv, int color) {
   if (!mv.is_pseudo_legal) {
     std::invalid_argument("isChecked: Move not pseudo-legal");
   }
-//   std::cout << "(isChecking\n";
-//   std::cout << "before move --------\n";
-//   notifyObservers();
   doMove(mv);
   bool checked;
   checked = detectChecked(color);
-//   std::cout << "after move --------\n";
-//   notifyObservers();
   undoMove(mv);
-//   std::cout << "undo move --------\n";
-//   notifyObservers();
-//   std::cout << "isChecking)\n";
   if (!checked) {
     mv.is_legal = true;
     return false;
@@ -194,26 +186,20 @@ bool Board::isDangerousFor(Square *sq, int color) {
 vector<Move> Board::listLegalMoves(int color) {
   vector<Move> res;
   int len = pieces[color].size();
-//   std::cout << "(enter listLegalMoves  len: " << len <<"\n";
-  for (std::size_t i = 0; i < len; ++i) {
-    // std::cout << "Accessing vector\n";
+  for (int i = 0; i < len; ++i) {
     auto piece = pieces[color].at(i);
     if (piece->isDead()) {
-    //   std::cout << "    loop " << i << " : dead\n";
       continue;
     }
-    // std::cout << "  loop " << i << " for " << *piece->getPosition() << "\n";
     vector<Move> pseudo_legal_moves = piece->listPseudoLegalMoves(*this);
     while (pseudo_legal_moves.size() > 0) {
       Move mv = pseudo_legal_moves.back();
       pseudo_legal_moves.pop_back();
-    //   std::cout << mv; 
       if (!isChecking(mv, mv.start->getPiece()->getColor())) {
         res.push_back(std::move(mv));
       }
     }
   }
-//   std::cout << "exit listLegalMoves)\n";
   return res;
 }
 
@@ -237,7 +223,6 @@ void Board::updateState() {
       checkmated[color] = false;
       stalemated[color] = false;
     }
-    stalemated[color] = false;
   }
 }
 

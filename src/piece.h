@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <memory>
 #include <vector>
 
 class Square;
