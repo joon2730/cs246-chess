@@ -16,6 +16,7 @@ class Board: public Subject {
     static const int ROWS = 8;
     static const int COLS = 8;
     static const int NUM_COLORS = 2;
+    static const int NUM_TYPE_PIECES = 6;
     enum {WHITE=0, BLACK};
     enum {PAWN=0, KNIGHT, BISHOP, ROOK, QUEEN, KING};
   private:
@@ -47,6 +48,7 @@ class Board: public Subject {
   public:
     Board();
     ~Board();
+    int num_alive_pieces[NUM_COLORS][NUM_TYPE_PIECES];
     void init();
     void render();
     bool isChecked(int color);

@@ -17,6 +17,11 @@ Board::Board() {
     for (int j = 0; j < COLS; ++j) {
       board.at(i).push_back(Square(i, j));
     }
+    for (int color = 0; color < NUM_COLORS; ++color) {
+        for (int type = 0; type < NUM_TYPE_PIECES; ++type) {
+            num_alive_pieces[color][type] = 0;
+        }
+    }
   }
 }
 
@@ -65,6 +70,7 @@ void Board::addPiece(int piece, int color, Square *sq) {
   } else {
     throw std::invalid_argument("invalid type of piece");
   }
+  num_alive_pieces[color][piece] += 1;
   sq->empty();
   sq->place(new_piece);
   pieces[color].push_back(std::move(new_piece));
@@ -72,6 +78,9 @@ void Board::addPiece(int piece, int color, Square *sq) {
 
 void Board::removePiece(string pos) {}
 void Board::removePiece(shared_ptr<Piece>& pc) {
+    if (!pc->isDead()) {
+        num_alive_pieces[pc->getColor()][pc->getName()] -= 1;
+    }
     int color = pc->getColor();
     int len = pieces[color].size();
     for (int i = len - 1; i >= 0; --i) {
@@ -220,10 +229,7 @@ bool Board::detectChecked(int color) {
 void Board::updateState() {
   for (int color = WHITE; color < NUM_COLORS; ++color) {
     checked[color] = detectChecked(color);
-    // std::cout << "(update\n";
     vector<Move> legal_moves = listLegalMoves(color);
-    // std::cout << "update)\n";
-
     if (legal_moves.size() == 0) {
       if (checked[color]) {
         checkmated[color] = true;
@@ -293,10 +299,16 @@ void Board::doMove(Move& mv) {
       movePiece(mv.moving_piece, mv.start, mv.end);
     }
   }
+
+
   // if the moving piece hasn't moved set is_first_move true
   if (!mv.moving_piece->getHasMoved()) {
     mv.is_first_move = true;
     mv.moving_piece->setHasMoved(true);
+  }
+  // keep track of the number of pieces alive
+  if (mv.is_attack) {
+    num_alive_pieces[mv.killed_piece->getColor()][mv.killed_piece->getName()] -= 1;
   }
 }
 
@@ -358,8 +370,14 @@ void Board::undoMove(Move& mv) {
       mv.end->place(mv.killed_piece);
     }
   }
+
+  // set has_moved back to false if it was first move
   if (mv.is_first_move) {
     mv.moving_piece->setHasMoved(false);
+  }
+  // keep track of the number of pieces alive
+  if (mv.is_attack) {
+    num_alive_pieces[mv.killed_piece->getColor()][mv.killed_piece->getName()] += 1;
   }
 }
 

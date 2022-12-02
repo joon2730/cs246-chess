@@ -36,7 +36,7 @@ int main() {
         // unique_ptr<Player> white = std::make_unique<Human>(WHITE);
         unique_ptr<Player> white = std::make_unique<ComputerLevel2>(WHITE);
         // unique_ptr<Player> black = std::make_unique<Human>(BLACK);
-        unique_ptr<Player> black = std::make_unique<ComputerLevel1>(BLACK);
+        unique_ptr<Player> black = std::make_unique<ComputerLevel2>(BLACK);
         game.addDisplay(game.TEXT_DISPLAY);
         game.begin(white, black);
         // in game
