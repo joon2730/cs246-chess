@@ -25,8 +25,8 @@ bool King::canMove(Board& board, Move& mv) {
     // Rook with same color at the end square
     if (!(mv.end->getPiece()->getName() == board.ROOK && mv.end->getPiece()->getColor() == color)) {
       return false;
-    // Must unmoved and unattacked(currently)
-    } else if (has_moved || board.isChecked(color)) {
+    // Must both king and rook be unmoved and the king currently unattacked
+    } else if (has_moved || mv.end->getPiece()->getHasMoved() || board.isChecked(color)) {
       return false;
     // Must be on the same row
     } else if (mv.end->getRow() != mv.start->getRow()) {

@@ -151,10 +151,18 @@ bool Board::isChecking(Move& mv, int color) {
   if (!mv.is_pseudo_legal) {
     std::invalid_argument("isChecked: Move not pseudo-legal");
   }
+//   std::cout << "(isChecking\n";
+//   std::cout << "before move --------\n";
+  notifyObservers();
   doMove(mv);
   bool checked;
   checked = detectChecked(color);
+//   std::cout << "after move --------\n";
+  notifyObservers();
   undoMove(mv);
+//   std::cout << "undo move --------\n";
+  notifyObservers();
+//   std::cout << "isChecking)\n";
   if (!checked) {
     mv.is_legal = true;
     return false;
@@ -179,21 +187,28 @@ bool Board::isDangerousFor(Square *sq, int color) {
 vector<Move> Board::listLegalMoves(int color) {
   vector<Move> res;
   int len = pieces[color].size();
+//   std::cout << "(enter listLegalMoves  len: " << len <<"\n";
   for (std::size_t i = 0; i < len; ++i) {
+    // std::cout << "Accessing vector\n";
     auto piece = pieces[color].at(i);
     if (piece->isDead()) {
+    //   std::cout << "    loop " << i << " : dead\n";
       continue;
     }
+    // std::cout << "  loop " << i << " for " << *piece->getPosition() << "\n";
     vector<Move> pseudo_legal_moves = piece->listPseudoLegalMoves(*this);
     while (pseudo_legal_moves.size() > 0) {
       Move mv = pseudo_legal_moves.back();
       pseudo_legal_moves.pop_back();
+    //   std::cout << mv; 
       if (!isChecking(mv, mv.start->getPiece()->getColor())) {
         res.push_back(std::move(mv));
       }
     }
   }
+//   std::cout << "exit listLegalMoves)\n";
   return res;
+
 }
 
 bool Board::detectChecked(int color) {
@@ -205,7 +220,10 @@ bool Board::detectChecked(int color) {
 void Board::updateState() {
   for (int color = WHITE; color < NUM_COLORS; ++color) {
     checked[color] = detectChecked(color);
+    // std::cout << "(update\n";
     vector<Move> legal_moves = listLegalMoves(color);
+    // std::cout << "update)\n";
+
     if (legal_moves.size() == 0) {
       if (checked[color]) {
         checkmated[color] = true;
@@ -248,12 +266,16 @@ void Board::doMove(Move& mv) {
     auto rook = mv.end->getPiece();
     movePiece(mv.moving_piece, mv.start, getSquare(mv.start->getRow(), g_file));
     movePiece(rook, mv.end, getSquare(mv.end->getRow(), f_file));
+    // set king and rook's has_moved true
+    rook->setHasMoved(true);
   } else if (mv.is_queenside_castling) {
     int c_file = 'c' - 'a';
     int d_file = 'd' - 'a';
     auto rook = mv.end->getPiece();
     movePiece(mv.moving_piece, mv.start, getSquare(mv.start->getRow(), c_file));
     movePiece(rook, mv.end, getSquare(mv.end->getRow(), d_file));
+    // set king and rook's has_moved true
+    rook->setHasMoved(true);
   // not a castling
   } else {
     // promotion
@@ -298,12 +320,16 @@ void Board::undoMove(Move& mv) {
     auto rook = getSquare(mv.end->getRow(), f_file)->getPiece();
     movePiece(mv.moving_piece, getSquare(mv.start->getRow(), g_file), mv.start);
     movePiece(rook, getSquare(mv.end->getRow(), f_file), mv.end);
+    // set rook's has_moved back to false
+    rook->setHasMoved(false);
   } else if (mv.is_queenside_castling) {
     int c_file = 'c' - 'a';
     int d_file = 'd' - 'a';
     auto rook = getSquare(mv.end->getRow(), d_file)->getPiece();
     movePiece(mv.moving_piece, getSquare(mv.start->getRow(), c_file), mv.start);
     movePiece(rook, getSquare(mv.end->getRow(), d_file), mv.end);
+    // set rook's has_moved back to false
+    rook->setHasMoved(false);
   // not a castling
   } else {
     if (mv.end->isEmpty()) {
@@ -331,9 +357,9 @@ void Board::undoMove(Move& mv) {
     } else if (mv.is_attack) {
       mv.end->place(mv.killed_piece);
     }
-    if (mv.is_first_move) {
-      mv.moving_piece->setHasMoved(false);
-    }
+  }
+  if (mv.is_first_move) {
+    mv.moving_piece->setHasMoved(false);
   }
 }
 
