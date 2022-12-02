@@ -16,17 +16,17 @@ void ChessGame::begin(unique_ptr<Player>& white, unique_ptr<Player>& black) {
 }
 
 void ChessGame::setup() {
-
+    
 }
 
 void ChessGame::takeTurn() {
-    // if (state != ACTIVE) {
-    //     throw std::logic_error("Game is already done")
-    // }
+    if (state != ACTIVE) {
+        throw std::logic_error("Game is already done");
+    }
     Move mv = players[player_in_turn]->makeMove(board);
     board.push(mv);
     board.render();
-    player_in_turn = (player_in_turn + 1) % 2; // white if black, black if white
+    player_in_turn = player_in_turn == board.WHITE ? board.BLACK : board.WHITE; // white if black, black if white
     if (board.isCheckmated(player_in_turn)) {
         if (player_in_turn == board.WHITE) {
             state = BLACK_WIN;

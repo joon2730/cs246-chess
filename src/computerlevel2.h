@@ -10,6 +10,7 @@ class ComputerLevel2: public Computer {
   public:
     ComputerLevel2(int side);
     Move makeMove(Board &board) override;
+    vector<Move> skimMoves(Board& board, vector<Move>& moves);
 };
 #endif
 

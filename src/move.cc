@@ -25,8 +25,9 @@ std::ostream& operator<<(std::ostream& out, Move &mv) {
       out << " [O-O-O]";
     }
   } else {
-    out << "Move from (" << *mv.start << "," << mv.start->getRow() << 
-      ") to (" << mv.end->getCol() << "," << mv.end->getRow();
+    out << "[no moving piece] Move start: " << *mv.start << " end: " << *mv.end <<
+      " from (" << mv.start->getCol() << "," << mv.start->getRow() << 
+      ") to (" << mv.end->getCol() << "," << mv.end->getRow() << ")";
   }
   out << std::endl;
   return out;

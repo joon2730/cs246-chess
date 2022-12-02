@@ -37,11 +37,9 @@ bool Queen::canMove(Board& board, Move& mv) {
 }
 
 vector<Move> Queen::listPseudoLegalMoves(Board& board) {
-    // cout << printText() << "\n";
     vector<Move> pseudo_legal_moves;
     for (int i = 0; i < board.getRows(); ++i) {
         for (int j = 0; j < board.getCols(); ++j) {
-            // cout << i << " " << j << "\n";
             Move mv = Move(position, board.getSquare(i, j));
             if (canMove(board, mv)) {
                 pseudo_legal_moves.push_back(std::move(mv));

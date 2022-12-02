@@ -77,33 +77,31 @@ bool King::canMove(Board& board, Move& mv) {
 
 vector<Move> King::listPseudoLegalMoves(Board& board) {
   vector<Move> pseudo_legal_moves;
-    for (int i = 0; i < board.getRows(); ++i) {
-        for (int j = 0; j < board.getCols(); ++j) {
-            Move mv = Move(position, board.getSquare(i, j));
-            if (canMove(board, mv)) {
-                pseudo_legal_moves.push_back(mv);
-            }
-        } 
+  int col = position->getCol();
+  int row = position->getRow();
+  for (int i = -1; i <= 1; ++i) {
+    for (int j = -1; j <= 1; ++j) {
+      if (board.inRange(row+i, col+j)) {
+        Move mv = Move(position, board.getSquare(row+i, col+j));
+        if (canMove(board, mv)) {
+            pseudo_legal_moves.push_back(mv);
+        }
+      }
     }
-    return pseudo_legal_moves;
-  // vector<Move> pseudo_legal_moves;
-  // int col = position->getCol();
-  // int row = position->getRow();
-  // int cols = board.COLS;
-  // int rows = board.ROWS;
-  // for (int col_step = -1; col_step <= 1; ++col_step) {
-  //   for (int row_step = -1; row_step <= 1; ++row_step) {
-  //     int cur_col = col + col_step;
-  //     int cur_row = row + row_step;
-  //     if (!(cur_row < 0 || rows <= cur_row || cur_col < 0 || cols <= cur_col)) {
-  //       Square* cur_pos = board.getSquare(cur_row, cur_col);
-  //       if (cur_pos->isEmpty() || color != cur_pos->getPiece()->getColor()) {
-  //         pseudo_legal_moves.emplace_back(position, board.getSquare(cur_row, cur_col));
-  //       }
-  //     }
-  //   }
-  // }
-  // return pseudo_legal_moves;
+  }
+  try {
+  for (int k = 0; k < board.getCols(); ++k) {
+    if (!board.getSquare(row, k)->isEmpty()) {
+      Move mv = Move(position, board.getSquare(row, k));
+      if (canMove(board, mv)) {
+          pseudo_legal_moves.push_back(mv);
+      }
+    }
+  }
+  } catch (...) {
+    std::cout << "here";
+  }
+  return pseudo_legal_moves;
 }
 
 string King::printText() {

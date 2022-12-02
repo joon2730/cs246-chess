@@ -39,12 +39,11 @@ class Board: public Subject {
     void addPiece(int piece, int color, string pos);
     void addPiece(int piece, int color, Square *sq);
     void removePiece(string coord);
+    void removePiece(shared_ptr<Piece>& piece);
     bool isPseudoLegal(Move& mv);
-    bool isPuttingOwnKingInCheck(Move& mv);
     void movePiece(shared_ptr<Piece>& piece, Square *from, Square *to);
     void doMove(Move& mv);
     void undoMove(Move& mv);
-    int opponent(int color);
   public:
     Board();
     ~Board();
@@ -57,12 +56,15 @@ class Board: public Subject {
     void pop();
     bool isLegal(Move& mv);
     bool isDangerousFor(Square *sq, int color);
+    bool isChecking(Move& mv, int color);
     vector<Move> listLegalMoves(int color);
     int getNumMovesPlayed();
     Move getLastMove();
     // Returns a pointer to Square in board at row and col corresponding to coord; ex: "d4", "e4" 
     Square* getSquare(string pos);
     Square* getSquare(int row, int col);
+    int opponent(int color);
+    bool inRange(int row, int col);
     int getRows();
     int getCols();
 };

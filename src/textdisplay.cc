@@ -14,6 +14,7 @@ void TextDisplay::notify() {
     out << "\n";
   }
   out << "\n  abcdefgh\n";
+  std::string names[2] = {"White", "Black"};
   std::string opnames[2] = {"Black", "White"};
   for (int color = subject->WHITE; color < subject->NUM_COLORS; ++color) {
     if (subject->isChecked(color)) {
@@ -21,7 +22,7 @@ void TextDisplay::notify() {
         out << "Checkmate! ";
         out << opnames[color] << " wins!\n";
       } else {
-        out << opnames[color] << " is in Check.\n";
+        out << names[color] << " is in Check.\n";
       }
     } else if (subject->isStalemated(color)) {
       out << "Stalemate\n";

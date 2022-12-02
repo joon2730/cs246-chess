@@ -37,18 +37,21 @@ bool Rook::canMove(Board& board, Move& mv) {
 }
 
 vector<Move> Rook::listPseudoLegalMoves(Board& board) {
-  // cout << printText() << "\n";
   vector<Move> pseudo_legal_moves;
+  int row = position->getRow();
+  int col = position->getCol();
   for (int i = 0; i < board.getRows(); ++i) {
-    for (int j = 0; j < board.getCols(); ++j) {
-      // cout << i << " " << j << "\n";
-      Move mv = Move(position, board.getSquare(i, j));
-      if (canMove(board, mv)) {
-        pseudo_legal_moves.push_back(std::move(mv));
-      }
+    Move mv = Move(position, board.getSquare(i, col));
+    if (canMove(board, mv)) {
+      pseudo_legal_moves.push_back(std::move(mv));
     }
   }
-
+  for (int j = 0; j < board.getCols(); ++j) {
+    Move mv = Move(position, board.getSquare(row, j));
+    if (canMove(board, mv)) {
+      pseudo_legal_moves.push_back(std::move(mv));
+    }
+  }
   return pseudo_legal_moves;
 }
 

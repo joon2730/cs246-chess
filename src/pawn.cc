@@ -94,16 +94,28 @@ bool Pawn::canMove(Board& board, Move& mv) {
 
 
 vector<Move> Pawn::listPseudoLegalMoves(Board& board) {
-    // cout << printText() << "\n";
     vector<Move> possible_moves;
-    for (int i = 0; i < board.getRows(); ++i) {
-        for (int j = 0; j < board.getCols(); ++j) {
-            // cout << i << " " << j << "\n";
-            Move mv = Move(position, board.getSquare(i, j));
+    int row = position->getRow();
+    int col = position->getCol();
+    int i;
+    if (color == WHITE) {
+        i = -1;
+    } else {
+        i = 1;
+    }
+    for (int j = -1; j <= 1; ++j) {
+        if (board.inRange(row+i, col+j)) {
+            Move mv = Move(position, board.getSquare(row+i, col+j));
             if (canMove(board, mv)) {
                 possible_moves.push_back(mv);
             }
-        } 
+        }
+    }
+    if (board.inRange(row+(i*2), col)) {
+        Move mv = Move(position, board.getSquare(row+(i*2), col));
+        if (canMove(board, mv)) {
+            possible_moves.push_back(mv);
+        }
     }
     return possible_moves;
 }

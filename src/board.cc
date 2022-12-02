@@ -71,6 +71,17 @@ void Board::addPiece(int piece, int color, Square *sq) {
 }
 
 void Board::removePiece(string pos) {}
+void Board::removePiece(shared_ptr<Piece>& pc) {
+    int color = pc->getColor();
+    int len = pieces[color].size();
+    for (int i = len - 1; i >= 0; --i) {
+        if (pc == pieces[color].at(i)) {
+            pieces[color].erase(pieces[color].begin() + i);
+            return;
+        }
+    }
+
+}
 
 void Board::init() {
   empty();
@@ -128,7 +139,7 @@ bool Board::isPseudoLegal(Move& mv) {
 }
 
 bool Board::isLegal(Move& mv) {
-  if (isPseudoLegal(mv) && !isPuttingOwnKingInCheck(mv)) {
+  if (isPseudoLegal(mv) && !isChecking(mv, mv.moving_piece->getColor())) {
     mv.is_pseudo_legal = true;
     mv.is_legal = true;
     return true;
@@ -136,20 +147,18 @@ bool Board::isLegal(Move& mv) {
   return false;
 }
 
-bool Board::isPuttingOwnKingInCheck(Move& mv) {
+bool Board::isChecking(Move& mv, int color) {
   if (!mv.is_pseudo_legal) {
-    std::invalid_argument("isPuttingOwnKingInCheck: Move not pseudo-legal");
+    std::invalid_argument("isChecked: Move not pseudo-legal");
   }
   doMove(mv);
-  bool own_king_checked;
-  own_king_checked = detectChecked(mv.moving_piece->getColor());
+  bool checked;
+  checked = detectChecked(color);
   undoMove(mv);
-  std::cout << own_king_checked << "\n";
-  if (!own_king_checked) {
+  if (!checked) {
     mv.is_legal = true;
     return false;
   }
-  std::cout << mv;
   return true;
 }
 
@@ -179,7 +188,7 @@ vector<Move> Board::listLegalMoves(int color) {
     while (pseudo_legal_moves.size() > 0) {
       Move mv = pseudo_legal_moves.back();
       pseudo_legal_moves.pop_back();
-      if (!isPuttingOwnKingInCheck(mv)) {
+      if (!isChecking(mv, mv.start->getPiece()->getColor())) {
         res.push_back(std::move(mv));
       }
     }
@@ -247,16 +256,8 @@ void Board::doMove(Move& mv) {
     movePiece(rook, mv.end, getSquare(mv.end->getRow(), d_file));
   // not a castling
   } else {
-    // if the moving piece hasn't moved set is_first_move true
-    if (!mv.moving_piece->getHasMoved()) {
-      mv.is_first_move = true;
-      mv.moving_piece->setHasMoved(true);
-    }
-    
     // promotion
     if (mv.is_promotion) {
-      // std::cout << "< doMove if promotion\n";
-      // std::cout << mv;
       mv.retired_piece = mv.moving_piece;
       mv.start->empty();
       mv.end->empty();
@@ -269,6 +270,11 @@ void Board::doMove(Move& mv) {
       // move the moving piece
       movePiece(mv.moving_piece, mv.start, mv.end);
     }
+  }
+  // if the moving piece hasn't moved set is_first_move true
+  if (!mv.moving_piece->getHasMoved()) {
+    mv.is_first_move = true;
+    mv.moving_piece->setHasMoved(true);
   }
 }
 
@@ -285,9 +291,6 @@ void Board::push(Move& mv) {
 }
 
 void Board::undoMove(Move& mv) {
-  if (mv.end->isEmpty()) {
-    throw std::invalid_argument("undoMove: no piece to move back found");
-  }
   // castling
   if (mv.is_kingside_castling) {
     int f_file = 'f' - 'a';
@@ -297,12 +300,15 @@ void Board::undoMove(Move& mv) {
     movePiece(rook, getSquare(mv.end->getRow(), f_file), mv.end);
   } else if (mv.is_queenside_castling) {
     int c_file = 'c' - 'a';
-    int d_file = 'c' - 'a';
+    int d_file = 'd' - 'a';
     auto rook = getSquare(mv.end->getRow(), d_file)->getPiece();
     movePiece(mv.moving_piece, getSquare(mv.start->getRow(), c_file), mv.start);
     movePiece(rook, getSquare(mv.end->getRow(), d_file), mv.end);
   // not a castling
   } else {
+    if (mv.end->isEmpty()) {
+      throw std::invalid_argument("undoMove: no piece to move back found");
+    }
     // if it was promotion
     if (mv.is_promotion) {
       mv.start->empty();
@@ -311,7 +317,7 @@ void Board::undoMove(Move& mv) {
         throw std::logic_error("no retired piece found");
       }
       mv.start->place(mv.retired_piece);
-      pieces[mv.moving_piece->getColor()].pop_back();
+      removePiece(mv.moving_piece);
       mv.moving_piece = mv.retired_piece;
     // not a promotion
     } else {
@@ -374,6 +380,13 @@ Square* Board::getSquare(int row, int col) {
     throw std::invalid_argument("Square out of range\n");
   }
   return &board[row][col];
+}
+
+bool Board::inRange(int row, int col) {
+  if (row < 0 || ROWS <= row || col < 0 || COLS <= col) {
+    return false;
+  }
+  return true;
 }
 
 bool Board::isChecked(int color) { return checked[color]; }
