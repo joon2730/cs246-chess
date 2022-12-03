@@ -4,12 +4,15 @@
 #include "observer.h"
 #include "board.h"
 #include <iostream>
+#include <utility>
+
+using std::unique_ptr;
 
 class TextDisplay: public Observer {
   Board *subject;
   std::ostream &out = std::cout;
  public:
-  TextDisplay(Board *s);
+  explicit TextDisplay(Board *s);
   void notify() override;
   ~TextDisplay();
 };

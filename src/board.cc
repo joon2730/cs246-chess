@@ -18,7 +18,7 @@ Board::Board() {
       board.at(i).push_back(Square(i, j));
     }
     for (int color = 0; color < NUM_COLORS; ++color) {
-        for (int type = 0; type < NUM_TYPE_PIECES; ++type) {
+        for (int type = 0; type < NUM_PIECE_TYPES; ++type) {
             num_alive_pieces[color][type] = 0;
         }
     }
@@ -158,18 +158,10 @@ bool Board::isChecking(Move& mv, int color) {
   if (!mv.is_pseudo_legal) {
     std::invalid_argument("isChecked: Move not pseudo-legal");
   }
-//   std::cout << "(isChecking\n";
-//   std::cout << "before move --------\n";
-//   notifyObservers();
   doMove(mv);
   bool checked;
   checked = detectChecked(color);
-//   std::cout << "after move --------\n";
-//   notifyObservers();
   undoMove(mv);
-//   std::cout << "undo move --------\n";
-//   notifyObservers();
-//   std::cout << "isChecking)\n";
   if (!checked) {
     mv.is_legal = true;
     return false;
@@ -177,14 +169,25 @@ bool Board::isChecking(Move& mv, int color) {
   return true;
 }
 
-bool Board::isDangerousFor(Square *sq, int color) {
+bool Board::isDangerousFor(Square *sq, shared_ptr<Piece>& piece) {
+  int color = piece->getColor();
   for (auto op : pieces[opponent(color)]) {
     if (op->isDead()) {
       continue;
     } else {
       Move mv = Move(op->getPosition(), sq);
-      if (isPseudoLegal(mv)) {
-        return true;
+      if (piece->getName() == KING) {
+        if (isPseudoLegal(mv)) {
+          return true;
+        }
+      } else {
+        Square *piece_pos = piece->getPosition();
+        piece_pos->empty();
+        bool res = isLegal(mv);
+        piece_pos->place(piece);
+        if (res) {
+          return true;
+        }
       }
     }
   }
@@ -194,32 +197,26 @@ bool Board::isDangerousFor(Square *sq, int color) {
 vector<Move> Board::listLegalMoves(int color) {
   vector<Move> res;
   int len = pieces[color].size();
-//   std::cout << "(enter listLegalMoves  len: " << len <<"\n";
-  for (std::size_t i = 0; i < len; ++i) {
-    // std::cout << "Accessing vector\n";
+  for (int i = 0; i < len; ++i) {
     auto piece = pieces[color].at(i);
     if (piece->isDead()) {
-    //   std::cout << "    loop " << i << " : dead\n";
       continue;
     }
-    // std::cout << "  loop " << i << " for " << *piece->getPosition() << "\n";
     vector<Move> pseudo_legal_moves = piece->listPseudoLegalMoves(*this);
     while (pseudo_legal_moves.size() > 0) {
       Move mv = pseudo_legal_moves.back();
       pseudo_legal_moves.pop_back();
-    //   std::cout << mv; 
       if (!isChecking(mv, mv.start->getPiece()->getColor())) {
         res.push_back(std::move(mv));
       }
     }
   }
-//   std::cout << "exit listLegalMoves)\n";
   return res;
 }
 
 bool Board::detectChecked(int color) {
   Square* king_pos = kings[color]->getPosition();
-  bool res = isDangerousFor(king_pos, color);
+  bool res = isDangerousFor(king_pos, kings[color]);
   return res;
 }
 
@@ -237,7 +234,6 @@ void Board::updateState() {
       checkmated[color] = false;
       stalemated[color] = false;
     }
-    stalemated[color] = false;
   }
 }
 
@@ -424,14 +420,21 @@ Square* Board::getSquare(string pos) {
       return &board[row][col];
     }
   }
-  throw std::invalid_argument("Square out of range\n");
+  throw std::invalid_argument("getSquare(string): Square out of range\n");
 }
 
 Square* Board::getSquare(int row, int col) {
   if (row < 0 || ROWS <= row || col < 0 || COLS <= col) {
-    throw std::invalid_argument("Square out of range\n");
+    throw std::invalid_argument("getSquare(int, int): Square out of range\n");
   }
   return &board[row][col];
+}
+
+int Board::getNumAlivePieces(int color, int type) {
+  if (color >= NUM_COLORS || type >= NUM_PIECE_TYPES) {
+    throw std::invalid_argument("getNumAlivePieces: out of range");
+  }
+  return num_alive_pieces[color][type];
 }
 
 bool Board::inRange(int row, int col) {

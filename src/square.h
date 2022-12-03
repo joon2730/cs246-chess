@@ -2,6 +2,7 @@
 #define SQUARE_H
 #include <iostream>
 #include <utility>
+#include <memory>
 
 class Piece;
 

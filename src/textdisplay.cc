@@ -3,7 +3,7 @@
 
 using std::string;
 
-TextDisplay::TextDisplay(Board *s) : subject{s} { subject->attach(this); }
+TextDisplay::TextDisplay(Board *s): subject{s} { subject->attach(this); }
 
 TextDisplay::~TextDisplay() { subject->detach(this); }
 
@@ -12,9 +12,9 @@ void TextDisplay::notify() {
   string name_of_pieces[2][6] = {{"P", "N", "B", "R", "Q", "K"},
                            {"p", "n", "b", "r", "q", "k"}};
   for (int color = 0; color < 2; ++color) {
-    for (int type = 0; type < subject->NUM_TYPE_PIECES; ++type) {
+    for (int type = 0; type < subject->NUM_PIECE_TYPES; ++type) {
       out << name_of_pieces[color][type] << ": " <<
-        subject->num_alive_pieces[color][type] <<
+        subject-> getNumAlivePieces(color, type) <<
         " ";
     }
     out << "\n";
@@ -40,11 +40,12 @@ void TextDisplay::notify() {
       }
     } else if (subject->isStalemated(color)) {
       out << "Stalemate\n";
-    // for testing
-    } else if (subject->isInsufficientMaterial()) {
-      out << "Insufficint Material\n";
     }
-    //
   }
+  // for testing
+  if (subject->isInsufficientMaterial()) {
+    out << "Insufficint Material\n";
+  }
+  //
   out << "\n";
 }
