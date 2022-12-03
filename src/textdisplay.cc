@@ -3,7 +3,7 @@
 
 using std::string;
 
-TextDisplay::TextDisplay(std::unique_ptr<Board>& s): subject{s} { subject->attach(this); }
+TextDisplay::TextDisplay(Board *s): subject{s} { subject->attach(this); }
 
 TextDisplay::~TextDisplay() { subject->detach(this); }
 

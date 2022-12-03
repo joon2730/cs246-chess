@@ -386,7 +386,6 @@ void Board::undoMove(Move& mv) {
 }
 
 void Board::pop() {
-  std::cout << "(pop\n";
   // recall the last move
   if (moves_played.size() == 0) {
     std::logic_error("getLastMove: No move to pop found");
@@ -395,8 +394,6 @@ void Board::pop() {
   moves_played.pop_back();
   undoMove(mv);
   updateState();
-  std::cout << "pop)\n";
-
 }
 
 int Board::getNumMovesPlayed() {
