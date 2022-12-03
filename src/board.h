@@ -16,17 +16,16 @@ class Board: public Subject {
     static const int ROWS = 8;
     static const int COLS = 8;
     static const int NUM_COLORS = 2;
-    static const int NUM_TYPE_PIECES = 6;
+    static const int NUM_PIECE_TYPES = 6;
     enum {WHITE=0, BLACK};
     enum {PAWN=0, KNIGHT, BISHOP, ROOK, QUEEN, KING};
+    friend class ChessAI;
   private:
-    // struct Config {
-      
-    // };
     vector<vector<Square>> board;
     vector<shared_ptr<Piece>> pieces[NUM_COLORS];
     vector<Move> moves_played;
     shared_ptr<Piece> kings[NUM_COLORS];
+    int num_alive_pieces[NUM_COLORS][NUM_PIECE_TYPES];
     bool checked[NUM_COLORS];
     bool checkmated[NUM_COLORS];
     bool stalemated[NUM_COLORS];
@@ -48,7 +47,6 @@ class Board: public Subject {
   public:
     Board();
     ~Board();
-    int num_alive_pieces[NUM_COLORS][NUM_TYPE_PIECES];
     void init();
     void render();
     bool isChecked(int color);
@@ -63,6 +61,7 @@ class Board: public Subject {
     vector<Move> listLegalMoves(int color);
     int getNumMovesPlayed();
     Move getLastMove();
+    int getNumAlivePieces(int color, int type);
     // Returns a pointer to Square in board at row and col corresponding to coord; ex: "d4", "e4" 
     Square* getSquare(string pos);
     Square* getSquare(int row, int col);

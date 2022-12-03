@@ -18,7 +18,7 @@ Board::Board() {
       board.at(i).push_back(Square(i, j));
     }
     for (int color = 0; color < NUM_COLORS; ++color) {
-        for (int type = 0; type < NUM_TYPE_PIECES; ++type) {
+        for (int type = 0; type < NUM_PIECE_TYPES; ++type) {
             num_alive_pieces[color][type] = 0;
         }
     }
@@ -386,6 +386,7 @@ void Board::undoMove(Move& mv) {
 }
 
 void Board::pop() {
+  std::cout << "(pop\n";
   // recall the last move
   if (moves_played.size() == 0) {
     std::logic_error("getLastMove: No move to pop found");
@@ -394,6 +395,8 @@ void Board::pop() {
   moves_played.pop_back();
   undoMove(mv);
   updateState();
+  std::cout << "pop)\n";
+
 }
 
 int Board::getNumMovesPlayed() {
@@ -420,14 +423,21 @@ Square* Board::getSquare(string pos) {
       return &board[row][col];
     }
   }
-  throw std::invalid_argument("Square out of range\n");
+  throw std::invalid_argument("getSquare(string): Square out of range\n");
 }
 
 Square* Board::getSquare(int row, int col) {
   if (row < 0 || ROWS <= row || col < 0 || COLS <= col) {
-    throw std::invalid_argument("Square out of range\n");
+    throw std::invalid_argument("getSquare(int, int): Square out of range\n");
   }
   return &board[row][col];
+}
+
+int Board::getNumAlivePieces(int color, int type) {
+  if (color >= NUM_COLORS || type >= NUM_PIECE_TYPES) {
+    throw std::invalid_argument("getNumAlivePieces: out of range");
+  }
+  return num_alive_pieces[color][type];
 }
 
 bool Board::inRange(int row, int col) {

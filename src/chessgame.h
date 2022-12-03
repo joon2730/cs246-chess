@@ -12,7 +12,7 @@ using std::vector;
 
 class ChessGame {
     static const int NUM_PLAYERS = 2;
-    Board board;
+    unique_ptr<Board> board;
     unique_ptr<Player> players[NUM_PLAYERS];
     vector<unique_ptr<Observer>> observers;
     int state;
