@@ -57,7 +57,7 @@ int ChessAI::alphabetaMax(Board& board, int alpha, int beta, int depthleft) {
     auto legal_moves = board.listLegalMoves(MAXIMIZING_PLAYER);
     if (legal_moves.size() == 0) {
         if (board.detectChecked(MAXIMIZING_PLAYER)) {
-            return -9999;
+            return -99999;
         } else {
             return 0;
         }
@@ -73,8 +73,8 @@ int ChessAI::alphabetaMax(Board& board, int alpha, int beta, int depthleft) {
         if (alpha < max_score) {
             alpha = max_score;
         }
-        if (beta <= alpha) {
-            break;
+        if (beta < alpha) {
+            return beta;
         }
     }
     return max_score;
@@ -87,7 +87,7 @@ int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft) {
     auto legal_moves = board.listLegalMoves(MINIMIZING_PLAYER);
     if (legal_moves.size() == 0) {
         if (board.detectChecked(MINIMIZING_PLAYER)) {
-            return 9999;
+            return 99999;
         } else {
             return 0;
         }
@@ -103,8 +103,8 @@ int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft) {
         if (beta > min_score) {
             beta = min_score;
         }
-        if (beta <= alpha) {
-            break;
+        if (beta < alpha) {
+            return alpha;
         }
     }
     return min_score;

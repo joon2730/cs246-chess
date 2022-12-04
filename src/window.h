@@ -6,37 +6,43 @@
 #include <map>
 
 class Xwindow {
-  Display *d;
-  Window w;
-  int s;
-  GC gc;
-  GC gc2;
-  unsigned long colours[10];
+	Display *d;
+	Window w;
+	int s;
+	GC gc, gc2;
+	unsigned long colours[11];
+	int width, height;
 	unsigned int bitmap_width, bitmap_height;
 	std::map<char, Pixmap*> imageMap; //pointers to loaded images (mapped by char, eg K,k,Q)
-  unsigned int axis_width, axis_height;
+  	unsigned int axis_width, axis_height;
 
- public:
-  Xwindow(int width=500, int height=500);  // Constructor; displays the window.
-  ~Xwindow();                              // Destructor; destroys the window.
-  Xwindow(const Xwindow&) = delete;
-  Xwindow &operator=(const Xwindow&) = delete;
+	public:
+	Xwindow(int width=800, int height=800);  // Constructor; displays the window.
+	~Xwindow();                              // Destructor; destroys the window.
 
-  // Available colours.
-  enum {White=0, Black, Red, Green, Blue, Cyan, Yellow, Magenta, AliceBlue, LightBlue};
+	enum { White = 0, Black, Red, Green, Blue, Cyan, Yellow, Magenta,
+		Orange, Brown, DimGray }; // Available colours.
 
-  // Draws a rectangle
-  void fillRectangle(int x, int y, int width, int height, int colour=Black);
+	// Draws a string
+	void drawString(int x, int y, std::string msg, int colour = Black);
+	void drawBigString(int x, int y, std::string msg, int colour = Black);
 
-  // Draws a string
-  void drawString(int x, int y, std::string msg);
+	// if you use this function, make sure font exists on the undergrad environment
+	void drawStringFont(int x, int y, std::string msg, std::string font, int colour = Black);
 
-  // Creates a graphic context gc
-  GC create_gc(Display* display, Window win, int reverse_video);
+	// Draws a rectangle
+	void fillRectangle(int x, int y, int width, int height, int colour=Black);
 
-  // Draws a chess piece
-  void drawPiece(char piece, int x, int y, int width, int height);
+  	void showAvailableFonts();
 
+	// Creates a graphic context gc
+	GC create_gc(Display* display, Window win, int reverse_video);
+
+	// Draws a chess piece
+	void drawPiece(char piece, int x, int y, int width, int height);
+
+  private:
+	void printMessage(int x, int y, const std::string& msg, int colour, XFontStruct& f);
 };
 
 #endif

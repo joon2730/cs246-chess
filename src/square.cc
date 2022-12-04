@@ -16,7 +16,13 @@ void Square::empty() {
   }
 }
 bool Square::isEmpty() { return piece == nullptr; }
-shared_ptr<Piece> Square::getPiece() { return piece; }
+
+shared_ptr<Piece> Square::getPiece() { 
+  if (piece == nullptr) {
+    throw std::logic_error("getPiece: Square is empty");
+  }
+  return piece; 
+}
 
 int Square::getRow() { return ROW; }
 int Square::getCol() { return COL; }
