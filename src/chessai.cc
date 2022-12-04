@@ -1,6 +1,9 @@
 #include "chessai.h"
 #include "board.h"
 #include "move.h"
+#include "piece.h"
+#include <iostream>
+#include <stdexcept>
 
 int ChessAI::sign(int side) {
     if (side == MAXIMIZING_PLAYER) {
@@ -10,14 +13,15 @@ int ChessAI::sign(int side) {
     }
 }
 
-vector<Move> ChessAI::searchMoves(Board& board, int side) {
+vector<Move> ChessAI::searchMoves(Board& board, int side, int depth) {
     auto legal_moves = board.listLegalMoves(side);
+    // std::cout << "len legal_mvs: " << legal_moves.size() << "\n";
     vector<Move> best_moves;
     if (side == MAXIMIZING_PLAYER) {
         int max_score = INT_MIN;
         for (auto mv: legal_moves) {
             board.doMove(mv);
-            int score = evaluateBoard(board);
+            int score = alphabetaMin(board, INT_MIN, INT_MAX, depth);
             board.undoMove(mv);
             if (score == max_score) {
                 best_moves.push_back(mv);
@@ -31,7 +35,7 @@ vector<Move> ChessAI::searchMoves(Board& board, int side) {
         int min_score = INT_MAX;
         for (auto mv: legal_moves) {
             board.doMove(mv);
-            int score = evaluateBoard(board);
+            int score = alphabetaMax(board, INT_MIN, INT_MAX, depth);
             board.undoMove(mv);
             if (score == min_score) {
                 best_moves.push_back(mv);
@@ -42,6 +46,66 @@ vector<Move> ChessAI::searchMoves(Board& board, int side) {
             }
         }
     }
+    board.updateState();
     return best_moves;
 }
 
+int ChessAI::alphabetaMax(Board& board, int alpha, int beta, int depthleft) {
+    if (depthleft == 0) {
+        return evaluateBoard(board);
+    }
+    auto legal_moves = board.listLegalMoves(MAXIMIZING_PLAYER);
+    if (legal_moves.size() == 0) {
+        if (board.detectChecked(MAXIMIZING_PLAYER)) {
+            return -9999;
+        } else {
+            return 0;
+        }
+    }
+    int max_score = INT_MIN;
+    for (auto mv: legal_moves) {
+        board.doMove(mv);
+        int score = alphabetaMin(board, alpha, beta, depthleft-1);
+        board.undoMove(mv);
+        if (score > max_score) {
+            max_score = score;
+        }
+        if (alpha > max_score) {
+            alpha = max_score;
+        }
+        if (beta <= alpha) {
+            break;
+        }
+    }
+    return max_score;
+}
+
+int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft) {
+    if (depthleft == 0) {
+        return evaluateBoard(board);
+    }
+    auto legal_moves = board.listLegalMoves(MINIMIZING_PLAYER);
+    if (legal_moves.size() == 0) {
+        if (board.detectChecked(MINIMIZING_PLAYER)) {
+            return 9999;
+        } else {
+            return 0;
+        }
+    }
+    int min_score = INT_MAX;
+    for (auto mv: legal_moves) {
+        board.doMove(mv);
+        int score = alphabetaMax(board, alpha, beta, depthleft-1);
+        board.undoMove(mv);
+        if (score < min_score) {
+            min_score = score;
+        }
+        if (beta < min_score) {
+            beta = min_score;
+        }
+        if (beta <= alpha) {
+            break;
+        }
+    }
+    return min_score;
+}
