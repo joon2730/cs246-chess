@@ -31,8 +31,8 @@ Move Human::makeMove(Board &board) {
                     }
                 }
             }
-        } catch (std::invalid_argument ex) {
-            std::cout << ex.what();
+        } catch (std::invalid_argument* ex) {
+            std::cout << ex->what();
         }
     } 
 }

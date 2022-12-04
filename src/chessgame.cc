@@ -1,6 +1,7 @@
 #include "chessgame.h"
 #include "human.h"
 #include "textdisplay.h"
+#include "graphicdisplay.h"
 
 ChessGame::ChessGame() {
     board.init();
@@ -49,6 +50,8 @@ void ChessGame::addDisplay(int display) {
     unique_ptr<Observer> ob;
     if (display == TEXT_DISPLAY) {
         ob = std::make_unique<TextDisplay>(&board);
+    } else if (display == GRAPHIC_DISPLAY) {
+        ob = std::make_unique<GraphicDisplay>(&board);
     } else {
         throw std::invalid_argument("no such display");
     }

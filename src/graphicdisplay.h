@@ -5,11 +5,11 @@
 
 #include "board.h"
 #include "observer.h"
-// #include "window.h"
+#include "window.h"
 
 class GraphicDisplay : public Observer {
   Board *subject;
-  const int PIXEL_WIDTH = 20, PIXEL_HEIGHT = 20;
+  const int TILE_WIDTH = 80, TILE_HEIGHT = 80;
   Xwindow *window;
 
  public:

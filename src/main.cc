@@ -24,6 +24,7 @@ int main() {
         // unique_ptr<Player> black = std::make_unique<Human>(BLACK);
         unique_ptr<Player> black = std::make_unique<ComputerLevel4>(BLACK);
         game->addDisplay(game->TEXT_DISPLAY);
+        game->addDisplay(game->GRAPHIC_DISPLAY);
         game->begin(white, black);
         // in game
         while (game->getState() == game->ACTIVE) {

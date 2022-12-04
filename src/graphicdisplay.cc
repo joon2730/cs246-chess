@@ -2,110 +2,41 @@
 
 #include <iostream>
 #include <string>
-
 #include "board.h"
-#include "piece.cc"
+#include "piece.h"
 #include "square.h"
 #include "window.h"
-using namespace std;
 
-GraphicDisplay::GraphicDisplay(Board *s) subject{s} { subject->attach(this); }
+GraphicDisplay::GraphicDisplay(Board *s): subject{s} { 
+  subject->attach(this);
+  window = new Xwindow(TILE_WIDTH * subject->getCols(), TILE_HEIGHT * subject->getCols());
+  // for(int i = 0; i < rows; ++i) {
+  // current_state[i] = new int[cols];
+  // }
+}
 
 void GraphicDisplay::notify() {
-  int row;
-  int col;
-  int piece_color;
-  int tile_color;
-  int name;
+  for (int row = 0; row < 8; ++row) {
+    for (int col = 0; col < 8; ++col) {
+      Square* sq = subject->getSquare(row, col);
 
-  for (int i = 0; i < 8; ++i) {
-    for (int j = 0; j < 8; ++j) {
-      row = subject->getSquare(i, j)->getRow();
-      col = subject->getSquare(i, j)->getCol();
-      piece_color = subject->getSquare(i, j)->getPiece()->getColor();
-      name = subject->getSquare(i, j)->getPiece()->getName();
-
-      if ((row + col) % 2 == 0)
-        tile_color = 0;
-      else
-        tile_color = 1;
-
-      if (color == WHITE) {
-        piece_color = color + 4
+      int tile_color;
+      if ((row + col) % 2 == 0) {
+        tile_color = window->AliceBlue;
       } else {
-        piece_color = color + 9
+        tile_color = window->LightBlue;
       }
+      int x = col * TILE_WIDTH;
+      int y = row * TILE_HEIGHT;
+      window->fillRectangle(x, y, TILE_WIDTH, TILE_HEIGHT, tile_color);
 
-      if (subject->getSquare(i, j)->isEmpty()) {
-        window.fillRectangle(200 * col + 200, 200 * row + 20, 200, 200,
-                             tile_color);
-      } else {
-        window.fillRectangle(200 * col + 200, 200 * row + 20, 200, 200,
-                             tile_color);
-        switch (name) {
-          case PAWN:
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 30,
-                              piece_color);
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 30,
-                              piece_color);
-            break;
-          case KNIGHT:
-            window.fillRectangle(col * 200 + 40 + 200, row * 200 + 40 + 20, 20,
-                                 40, piece_color);
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 40 + 20, 40,
-                              piece_color);
-            break;
-          case BISHOP:
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 30,
-                              piece_color);
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 40,
-                              piece_color);
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 20,
-                              piece_color);
-            window.fillRectangle(col * 200 + 40 + 200, row * 200 + 50 + 20, 5,
-                                 2, piece_color);
-            break;
-          case ROOK:
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 30,
-                              piece_color);
-            window.fillRectangle(col * 200 + 40 + 200, row * 200 + 20 + 20, 20,
-                                 5, piece_color);
-            window.fillRectangle(col * 200 + 20 + 200, row * 200 + 40 + 20, 5,
-                                 20, piece_color);
-            window.fillRectangle(col * 200 + 40 + 200, row * 200 + 70 + 20, 20,
-                                 5, piece_color);
-            window.fillRectangle(col * 200 + 70 + 200, row * 200 + 40 + 20, 5,
-                                 20, piece_color);
-            break;
-          case QUEEN:
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 30,
-                              piece_color);
+      if (!sq->isEmpty()) {
+        char name = sq->getPiece()->printText()[0];
+        // int piece_color = sq->getPiece()->getColor();
 
-            window.fillCircle(col * 200 + 20 + 200, row * 200 + 50 + 20, 5,
-                              piece_color);
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 50 + 20, 5,
-                              piece_color);
-            window.fillCircle(col * 200 + 20 + 200, row * 200 + 30 + 20, 5,
-                              piece_color);
-            window.fillCircle(col * 200 + 50 + 200, row * 200 + 20 + 20, 5,
-                              piece_color);
-
-            window.fillCircle(col * 200 + 40 + 200, row * 200 + 40 + 20, 5,
-                              piece_color);
-            window.fillCircle(col * 200 + 70 + 200, row * 200 + 70 + 20, 5,
-                              piece_color);
-            window.fillCircle(col * 200 + 70 + 200, row * 200 + 40 + 20, 5,
-                              piece_color);
-            window.fillCircle(col * 200 + 40 + 200, row * 200 + 70 + 20, 5,
-                              piece_color);
-            break;
-          case KING:
-            window.fillRectangle(col * 200 + 40 + 200, row * 200 + 20 + 20, 20,
-                                 30, piece_color);
-            window.fillRectangle(col * 200 + 20 + 200, row * 200 + 40 + 20, 30,
-                                 20, piece_color);
-            break;
-        }
+        // window->drawString(x + (TILE_WIDTH / 2), y + (TILE_HEIGHT / 2), text);
+        // window->drawBigString(x + (TILE_WIDTH / 2), y + (TILE_HEIGHT / 2), "\u2654", window->Black);
+        window->drawPiece(name, x, y, TILE_WIDTH, TILE_HEIGHT);
       }
     }
   }

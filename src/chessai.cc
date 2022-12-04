@@ -70,7 +70,7 @@ int ChessAI::alphabetaMax(Board& board, int alpha, int beta, int depthleft) {
         if (score > max_score) {
             max_score = score;
         }
-        if (alpha > max_score) {
+        if (alpha < max_score) {
             alpha = max_score;
         }
         if (beta <= alpha) {
@@ -100,7 +100,7 @@ int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft) {
         if (score < min_score) {
             min_score = score;
         }
-        if (beta < min_score) {
+        if (beta > min_score) {
             beta = min_score;
         }
         if (beta <= alpha) {
