@@ -1,21 +1,20 @@
 
-#ifndef GRAPHICOBSERVER_H
-#define GRAPHICOBSERVER_H
+#ifndef GRAPHICDISPLAY_H
+#define GRAPHICDISPLAY_H
+#include <iostream>
 
-#include "observer.h"
 #include "board.h"
-#include "window.h"
+#include "observer.h"
+// #include "window.h"
 
-class GraphicObserver: public Observer {
-  Studio *subject;
-  int top, bottom, left, right;
-  const int PIXEL_WIDTH = 10, PIXEL_HEIGHT = 10;
+class GraphicDisplay : public Observer {
+  Board *subject;
+  const int PIXEL_WIDTH = 20, PIXEL_HEIGHT = 20;
   Xwindow *window;
-  int **current_state;
+
  public:
-  GraphicObserver(Studio *s, int top, int bottom, int left, int right);
+  GraphicDisplay(Board *s);
   void notify() override;
-  ~GraphicObserver();
+  ~GraphicDisplay();
 };
 #endif
-
