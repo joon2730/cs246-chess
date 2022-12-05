@@ -17,10 +17,11 @@ class ChessGame {
     unique_ptr<Player> players[NUM_PLAYERS];
     vector<unique_ptr<Observer>> observers;
     int state;
+    int mode;
     int player_in_turn;
     bool setted = false;
   public:
-    enum {TEXT_DISPLAY=0, GRAPHIC_DISPLAY};
+    enum {TEXT_DISPLAY = 0, GRAPHIC_DISPLAY};
     enum {INITIAL = 0, ACTIVE, WHITE_WIN, BLACK_WIN, STALEMATE, INSUFFICIENT_MATERIAL};
     enum {HUMAN = 0, COMPUTERLEVEL1, COMPUTERLEVEL2, COMPUTERLEVEL3, COMPUTERLEVEL4};
     ChessGame();

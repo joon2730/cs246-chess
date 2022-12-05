@@ -8,6 +8,15 @@ ComputerLevel3::ComputerLevel3(int side): Computer{side} {
 }
 
 Move ComputerLevel3::makeMove(Board &board) {
+    std::string input;
+    while (!auto_move) {
+        std::cin >> input;
+        if (input == "move") {
+            break;
+        } else if (input == "auto") {
+            auto_move = true;
+        }
+    }
     auto legal_moves = board.listLegalMoves(side);
     auto preferred_moves = skimMoves(board, legal_moves);
     int len = preferred_moves.size();

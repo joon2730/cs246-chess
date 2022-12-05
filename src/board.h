@@ -19,6 +19,7 @@ class Board: public Subject {
     static const int NUM_PIECE_TYPES = 6;
     enum {WHITE=0, BLACK};
     enum {PAWN=0, KNIGHT, BISHOP, ROOK, QUEEN, KING};
+    enum {STANDARD = 0};
     friend class ChessAI;
   private:
     vector<vector<Square>> board;
@@ -53,7 +54,7 @@ class Board: public Subject {
     bool isStalemated(int color);
     bool isInsufficientMaterial();
     bool hasResigned(int color);
-    bool isValidSetup();
+    bool isValidSetup(int mode);
     void push(Move& mv);
     void pop();
     bool isLegal(Move& mv);

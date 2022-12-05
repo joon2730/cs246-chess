@@ -27,7 +27,9 @@ void Board::render() { notifyObservers(); }
 void Board::empty() {
   for (int i = 0; i < NUM_COLORS; ++i) {
     while (pieces[i].size() > 0) {
-      pieces[i].back()->getPosition()->empty();
+      if (!pieces[i].back()->isDead()) {
+        pieces[i].back()->getPosition()->empty();
+      }
       pieces[i].pop_back();
     }
   }
@@ -97,6 +99,9 @@ void Board::init() {
     addPiece(BLACK, PAWN, getSquare(1, col));
     addPiece(WHITE, PAWN, getSquare(6, col));
     addPiece(WHITE, backrow[col], getSquare(7, col));
+  }
+  for (int color = WHITE; color < NUM_COLORS; ++color) {
+    resigned[color] = false;
   }
   updateState();
 }
@@ -420,27 +425,49 @@ bool Board::inRange(int row, int col) {
   return true;
 }
 
-bool Board::isValidSetup() {
+bool Board::isValidSetup(int mode) {
   bool king_already_found[NUM_COLORS];
   for (int color = WHITE; color < NUM_COLORS; ++color) {
     for (auto pc: pieces[color]) {
+      // if king
       if (pc->getName() == KING) {
         if (king_already_found[pc->getColor()]) {
           return false;
         }
         king_already_found[pc->getColor()] = true;
+
+        // rule setup
+        kings[color] = pc;
+        if (mode == STANDARD) {
+          if (!(pc->getColor() == WHITE && pc->getPosition() != getSquare("e1"))) {
+            pc->setHasMoved(true);
+          } else if (!(pc->getColor() == BLACK && pc->getPosition() != getSquare("e8"))) {
+            pc->setHasMoved(true);
+          }
+        }
+      // if pawn
       } else if (pc->getName() == PAWN) {
         int row = pc->getPosition()->getRow();
         if (row == 0 || row == (ROWS - 1)) {
           return false;
         }
+
+        // rule setup
+        if (mode == STANDARD) {
+          int rank_2 = '8' - '2';
+          int rank_7 = '8' - '7';
+          if (pc->getColor() == WHITE && pc->getPosition()->getRow() != rank_2) {
+            pc->setHasMoved(true);
+          } else if (pc->getColor() == BLACK && pc->getPosition()->getRow() != rank_7) {
+            pc->setHasMoved(true);
+          }
+        }
       }
     }
     if (detectChecked(color)) {
-    return false;
+      return false;
+    }
   }
-  }
-  
   return true;
 }
 

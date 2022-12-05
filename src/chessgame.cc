@@ -11,6 +11,7 @@
 
 ChessGame::ChessGame() {
     state = INITIAL;
+    mode = board.STANDARD;
 }
 
 void ChessGame::reset(int white_player_type, int black_player_type) {
@@ -65,7 +66,7 @@ void ChessGame::setup() {
                     throw (std::invalid_argument("Invalid player"));
                 }
             } else if (input == "done") {
-                if (board.isValidSetup()) {
+                if (board.isValidSetup(mode)) {
                     return;
                 } else {
                     throw (std::invalid_argument("Invalid setup"));
@@ -90,9 +91,8 @@ void ChessGame::takeTurn() {
         } else {
             state = WHITE_WIN;
         }
-    } else {
-        board.render();
     }
+    board.render();
     player_in_turn = player_in_turn == board.WHITE ? board.BLACK : board.WHITE; // white if black, black if white
     if (board.isCheckmated(player_in_turn)) {
         if (player_in_turn == board.WHITE) {

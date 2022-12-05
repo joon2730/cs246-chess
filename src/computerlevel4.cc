@@ -11,6 +11,15 @@ ComputerLevel4::ComputerLevel4(int side): Computer{side} {
 }
 
 Move ComputerLevel4::makeMove(Board &board) {
+    std::string input;
+    while (!auto_move) {
+        std::cin >> input;
+        if (input == "move") {
+            break;
+        } else if (input == "auto") {
+            auto_move = true;
+        }
+    }
     int depth = 3;
     auto preferred_moves = searchMoves(board, side, depth);
     int len = preferred_moves.size();

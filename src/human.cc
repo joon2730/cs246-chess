@@ -2,6 +2,7 @@
 #include "square.h"
 #include "move.h"
 #include "piece.h"
+#include "math.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -75,5 +76,24 @@ Move Human::makeMove(Board &board) {
 Move Human::createMove(Board& board, string p1, string p2) {
     Square *start = board.getSquare(p1);
     Square *end = board.getSquare(p2);
+    // translating castling input
+    if (!start->isEmpty() && start->getPiece()->getName() == board.KING) {
+        if (dist(start->getCol(), end->getCol()) > 1) {
+            int e_file = 'e' - 'a';    
+            int g_file = 'g' - 'a';
+            int c_file = 'c' - 'a';
+            int a_file = 'a' - 'a';    
+            int h_file = 'h' - 'a';
+            if (start->getCol() == e_file && !start->getPiece()->getHasMoved()) {
+                if (start->getRow() == end->getRow()) {
+                    if (end->getCol() == g_file) {
+                        end = board.getSquare(start->getRow(), h_file);
+                    } else if (end->getCol() == c_file) {
+                        end = board.getSquare(start->getRow(), a_file);
+                    }
+                }
+            }
+        }
+    }
     return Move(start, end);
 }
