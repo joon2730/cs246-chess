@@ -1,4 +1,5 @@
 #include "computerlevel4.h"
+#include "piece.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -14,7 +15,6 @@ Move ComputerLevel4::makeMove(Board &board) {
     auto preferred_moves = searchMoves(board, side, depth);
     int len = preferred_moves.size();
     int randint = std::rand();
-    std::cout << "evaluation: " << evaluateBoard(board) << "\n\n";
     return preferred_moves.at(randint % len);
 }
 
@@ -23,6 +23,19 @@ int ComputerLevel4::evaluateBoard(Board& board) {
     for (int type = 0; type < board.NUM_PIECE_TYPES; ++type) {
         value += piece_value[type] * board.getNumAlivePieces(MAXIMIZING_PLAYER, type);
         value -= piece_value[type] * board.getNumAlivePieces(MINIMIZING_PLAYER, type);
+    }
+    for (int color = 0; color < board.NUM_COLORS; ++color) {
+        for (auto pc: getPieces(board, color)) {
+            if (!pc->isDead()) {
+                Square *sq = pc->getPosition();
+                int type = pc->getName();
+                if (pc->getColor() == board.WHITE) {
+                    value += position_values[type][sq->getRow()][sq->getCol()];
+                } else {
+                    value -= position_values[type][sq->getCol()][sq->getCol()];
+                }
+            }
+        }
     }
     return value;
 }

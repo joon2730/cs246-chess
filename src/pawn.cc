@@ -75,6 +75,9 @@ bool Pawn::canMove(Board& board, Move& mv) {
         // promotion
         int rank_8 = '8' - '8';
         if (mv.end->getRow() == rank_8) {
+            // if (!(board.KNIGHT <= mv.promote_to && mv.promote_to <= board.QUEEN)) {
+            //     return false;
+            // }
             mv.is_promotion = true;
         }
     } else if (color == BLACK) {
@@ -85,6 +88,9 @@ bool Pawn::canMove(Board& board, Move& mv) {
         // promotion
         int rank_1 = '8' - '1';
         if (mv.end->getRow() == rank_1) {
+            // if (!(board.KNIGHT <= mv.promote_to && mv.promote_to <= board.QUEEN)) {
+            //     return false;
+            // }
             mv.is_promotion = true;
         }
     }
@@ -107,14 +113,34 @@ vector<Move> Pawn::listPseudoLegalMoves(Board& board) {
         if (board.inRange(row+i, col+j)) {
             Move mv = Move(position, board.getSquare(row+i, col+j));
             if (canMove(board, mv)) {
-                possible_moves.push_back(mv);
+                if (mv.is_promotion) {
+                    for (int t = board.KNIGHT; t <= board.QUEEN; ++t) {
+                        Move prom_mv = Move(position, board.getSquare(row+i, col+j));
+                        prom_mv.promote_to = t;
+                        prom_mv.is_promotion = true;
+                        prom_mv.is_pseudo_legal = true;
+                        possible_moves.push_back(prom_mv);                      
+                    }
+                } else {
+                    possible_moves.push_back(mv);
+                }
             }
         }
     }
     if (board.inRange(row+(i*2), col)) {
         Move mv = Move(position, board.getSquare(row+(i*2), col));
         if (canMove(board, mv)) {
-            possible_moves.push_back(mv);
+            if (mv.is_promotion) {
+                for (int t = board.KNIGHT; t <= board.QUEEN; ++t) {
+                    Move prom_mv = Move(position, board.getSquare(row+(i*2), col));
+                    prom_mv.promote_to = t;
+                    prom_mv.is_promotion = true;
+                    prom_mv.is_pseudo_legal = true;
+                    possible_moves.push_back(prom_mv);      
+                }
+            } else {
+                possible_moves.push_back(mv);
+            }
         }
     }
     return possible_moves;

@@ -19,10 +19,11 @@ struct Move {
     bool is_attack = false;
     bool is_enpassant = false;
     bool is_promotion = false;
-    int promote_to = 4;
+    int promote_to;
     bool is_kingside_castling = false;
     bool is_queenside_castling = false;
-    bool is_resign = false;
+    bool is_white_resign = false;
+    bool is_black_resign = false;
     bool is_first_move = false;
     bool is_pawns_two_square_move = false;
     bool is_pseudo_legal = false;

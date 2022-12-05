@@ -29,6 +29,7 @@ class Board: public Subject {
     bool checked[NUM_COLORS];
     bool checkmated[NUM_COLORS];
     bool stalemated[NUM_COLORS];
+    bool resigned[NUM_COLORS];
     // Empties pieces and moves_played
     void empty();
     void updateState();
@@ -36,10 +37,6 @@ class Board: public Subject {
     bool detectChecked(int Color);
     // checks if the move complys the basic chess movement patterns
     // checks if the move puts own king in check
-    void addPiece(int piece, int color, string pos);
-    void addPiece(int piece, int color, Square *sq);
-    void removePiece(string coord);
-    void removePiece(shared_ptr<Piece>& piece);
     bool isPseudoLegal(Move& mv);
     void movePiece(shared_ptr<Piece>& piece, Square *from, Square *to);
     void doMove(Move& mv);
@@ -49,10 +46,14 @@ class Board: public Subject {
     ~Board();
     void init();
     void render();
+    void addPiece(int color, int piece, Square *sq);
+    void removePiece(shared_ptr<Piece>& piece);
     bool isChecked(int color);
     bool isCheckmated(int color);
     bool isStalemated(int color);
     bool isInsufficientMaterial();
+    bool hasResigned(int color);
+    bool isValidSetup();
     void push(Move& mv);
     void pop();
     bool isLegal(Move& mv);

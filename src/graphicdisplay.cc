@@ -33,7 +33,7 @@ GraphicDisplay::GraphicDisplay(Board *s): subject{s} {
         window->drawBigString(x + (TILE_WIDTH / 2), height - (EDGE_BOTTOM / 4), s, window->White);
       }
       if (j == 0) {
-        char msg = '1' + i;
+        char msg = '8' - i;
         std::string s = "";
         s = msg;
         window->drawBigString((EDGE_LEFT / 4), y + TILE_HEIGHT, s, window->White);

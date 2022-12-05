@@ -5,14 +5,6 @@
 #include <iostream>
 #include <stdexcept>
 
-int ChessAI::sign(int side) {
-    if (side == MAXIMIZING_PLAYER) {
-        return 1;
-    } else {
-        return -1;
-    }
-}
-
 vector<Move> ChessAI::searchMoves(Board& board, int side, int depth) {
     auto legal_moves = board.listLegalMoves(side);
     // std::cout << "len legal_mvs: " << legal_moves.size() << "\n";
@@ -108,4 +100,9 @@ int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft) {
         }
     }
     return min_score;
+}
+
+
+vector<std::shared_ptr<Piece>>& ChessAI::getPieces(Board& board, int color) {
+    return board.pieces[color];
 }

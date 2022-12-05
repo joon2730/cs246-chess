@@ -20,21 +20,14 @@ vector<Move> ComputerLevel3::skimMoves(Board& board, vector<Move>& moves) {
     int max_score = 0;
     for (auto mv: moves) {
         int score = evaluateMove(board, mv);
-        // std::cout << "score: " << score << "\n";
         if (score == max_score) {
             preferred_moves.push_back(mv);
-        // std::cout << "pushed" << "\n";
-
         } else if (score > max_score) {
             preferred_moves.clear();
             preferred_moves.push_back(mv);
             max_score = score;
-        // std::cout << "cleared and pushed" << "\n";
-
         }
     }
-    // for (auto mv: )
-        // std::cout << "max_score: " << max_score << " len: " << preferred_moves.size() << "\n";
     return preferred_moves;
 }
 

@@ -9,16 +9,16 @@ TextDisplay::~TextDisplay() { subject->detach(this); }
 
 void TextDisplay::notify() {
   // for debugging
-  string name_of_pieces[2][6] = {{"P", "N", "B", "R", "Q", "K"},
-                           {"p", "n", "b", "r", "q", "k"}};
-  for (int color = 0; color < 2; ++color) {
-    for (int type = 0; type < subject->NUM_PIECE_TYPES; ++type) {
-      out << name_of_pieces[color][type] << ": " <<
-        subject-> getNumAlivePieces(color, type) <<
-        " ";
-    }
-    out << "\n";
-  }
+  // string name_of_pieces[2][6] = {{"P", "N", "B", "R", "Q", "K"},
+  //                          {"p", "n", "b", "r", "q", "k"}};
+  // for (int color = 0; color < 2; ++color) {
+  //   for (int type = 0; type < subject->NUM_PIECE_TYPES; ++type) {
+  //     out << name_of_pieces[color][type] << ": " <<
+  //       subject-> getNumAlivePieces(color, type) <<
+  //       " ";
+  //   }
+  //   out << "\n";
+  // }
   //
   for (int i = 0; i < 8; ++i) {
     out << 8 - i << " ";
@@ -40,12 +40,12 @@ void TextDisplay::notify() {
       }
     } else if (subject->isStalemated(color)) {
       out << "Stalemate\n";
+    } else if (subject->hasResigned(color)) {
+      out << opnames[color] << " wins!\n";
     }
   }
-  // for testing
   if (subject->isInsufficientMaterial()) {
     out << "Insufficint Material\n";
   }
-  //
   out << "\n";
 }

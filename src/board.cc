@@ -32,6 +32,7 @@ void Board::render() { notifyObservers(); }
 void Board::empty() {
   for (int i = 0; i < NUM_COLORS; ++i) {
     while (pieces[i].size() > 0) {
+      pieces[i].back()->getPosition()->empty();
       pieces[i].pop_back();
     }
   }
@@ -48,11 +49,10 @@ int Board::opponent(int color) {
   }
 }
 
-void Board::addPiece(int piece, int color, string pos) {
-  addPiece(piece, color, getSquare(pos));
-}
-
-void Board::addPiece(int piece, int color, Square *sq) {
+void Board::addPiece(int color, int piece, Square *sq) {
+  if (color != WHITE && color != BLACK) {
+    throw std::invalid_argument("addPiece: Invalid color");
+  }
   shared_ptr<Piece> new_piece;
   if (piece == PAWN) {
     new_piece = std::make_shared<Pawn>(color, PAWN);
@@ -76,7 +76,6 @@ void Board::addPiece(int piece, int color, Square *sq) {
   pieces[color].push_back(std::move(new_piece));
 }
 
-void Board::removePiece(string pos) {}
 void Board::removePiece(shared_ptr<Piece>& pc) {
     pc->getPosition()->empty();
     num_alive_pieces[pc->getColor()][pc->getName()] -= 1;
@@ -92,43 +91,13 @@ void Board::removePiece(shared_ptr<Piece>& pc) {
 
 void Board::init() {
   empty();
-  // WHITE
-  addPiece(PAWN, WHITE, "a2");
-  addPiece(PAWN, WHITE, "b2");
-  addPiece(PAWN, WHITE, "c2");
-  addPiece(PAWN, WHITE, "d2");
-  addPiece(PAWN, WHITE, "e2");
-  addPiece(PAWN, WHITE, "f2");
-  addPiece(PAWN, WHITE, "g2");
-  addPiece(PAWN, WHITE, "h2");
-
-  addPiece(ROOK, WHITE, "a1");
-  addPiece(KNIGHT, WHITE, "b1");
-  addPiece(BISHOP, WHITE, "c1");
-  addPiece(QUEEN, WHITE, "d1");
-  addPiece(KING, WHITE, "e1");
-  addPiece(BISHOP, WHITE, "f1");
-  addPiece(KNIGHT, WHITE, "g1");
-  addPiece(ROOK, WHITE, "h1");
-  // BLACK
-  addPiece(PAWN, BLACK, "a7");
-  addPiece(PAWN, BLACK, "b7");
-  addPiece(PAWN, BLACK, "c7");
-  addPiece(PAWN, BLACK, "d7");
-  addPiece(PAWN, BLACK, "e7");
-  addPiece(PAWN, BLACK, "f7");
-  addPiece(PAWN, BLACK, "g7");
-  addPiece(PAWN, BLACK, "h7");
-
-  addPiece(ROOK, BLACK, "a8");
-  addPiece(KNIGHT, BLACK, "b8");
-  addPiece(BISHOP, BLACK, "c8");
-  addPiece(QUEEN, BLACK, "d8");
-  addPiece(KING, BLACK, "e8");
-  addPiece(BISHOP, BLACK, "f8");
-  addPiece(KNIGHT, BLACK, "g8");
-  addPiece(ROOK, BLACK, "h8");
-  
+  int backrow[COLS] = {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
+  for (int col = 0; col < COLS; ++col) {
+    addPiece(BLACK, backrow[col], getSquare(0, col));
+    addPiece(BLACK, PAWN, getSquare(1, col));
+    addPiece(WHITE, PAWN, getSquare(6, col));
+    addPiece(WHITE, backrow[col], getSquare(7, col));
+  }
   updateState();
 }
 
@@ -288,7 +257,7 @@ void Board::doMove(Move& mv) {
       if (!(KNIGHT <= mv.promote_to && mv.promote_to <= QUEEN)) {
         throw std::invalid_argument("doMove: Cannot promote to this piece");
       }
-      addPiece(mv.promote_to, mv.moving_piece->getColor(), mv.end);
+      addPiece(mv.moving_piece->getColor(), mv.promote_to, mv.end);
       mv.moving_piece = mv.end->getPiece();
     // not promotion
     } else {
@@ -313,6 +282,13 @@ void Board::doMove(Move& mv) {
 }
 
 void Board::push(Move& mv) {
+  if (mv.is_white_resign) {
+    resigned[WHITE] = true;
+    return;
+  } else if (mv.is_black_resign) {
+    resigned[BLACK] = true;
+    return;
+  }
   if (!mv.is_legal) {
     throw std::invalid_argument("push: Move's legality not checked");
   }
@@ -444,11 +420,37 @@ bool Board::inRange(int row, int col) {
   return true;
 }
 
+bool Board::isValidSetup() {
+  bool king_already_found[NUM_COLORS];
+  for (int color = WHITE; color < NUM_COLORS; ++color) {
+    for (auto pc: pieces[color]) {
+      if (pc->getName() == KING) {
+        if (king_already_found[pc->getColor()]) {
+          return false;
+        }
+        king_already_found[pc->getColor()] = true;
+      } else if (pc->getName() == PAWN) {
+        int row = pc->getPosition()->getRow();
+        if (row == 0 || row == (ROWS - 1)) {
+          return false;
+        }
+      }
+    }
+    if (detectChecked(color)) {
+    return false;
+  }
+  }
+  
+  return true;
+}
+
 bool Board::isChecked(int color) { return checked[color]; }
 
 bool Board::isCheckmated(int color) { return checkmated[color]; }
 
 bool Board::isStalemated(int color) { return stalemated[color]; }
+
+bool Board::hasResigned(int color) { return resigned[color]; }
 
 bool Board::isInsufficientMaterial() {
     if (num_alive_pieces[WHITE][PAWN] + num_alive_pieces[WHITE][QUEEN] 

@@ -1,0 +1,8 @@
+setup
++ P g7
++ P b7
++ p b2
++ p g2
+done
+game computer4 computer2
+
