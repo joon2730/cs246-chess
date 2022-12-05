@@ -30,7 +30,6 @@ void ChessGame::setup() {
     if (!setted) {
         board.init();
     }
-    board.init();
     board.render();
     setted = true;
     std::string input;
@@ -140,7 +139,7 @@ unique_ptr<Player> ChessGame::createPlayer(int side, int player_type) {
 }
 
 void ChessGame::readPieceFromChar(char c, int& color, int& piece) {
-    char name_of_pieces[board.NUM_COLORS][board.NUM_PIECE_TYPES] 
+    char name_of_pieces[2][6] 
          = {{'P', 'N', 'B', 'R', 'Q', 'K'},
             {'p', 'n', 'b', 'r', 'q', 'k'}};
     if ('A' <= c && c <= 'Z') {

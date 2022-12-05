@@ -17,11 +17,6 @@ Board::Board() {
     for (int j = 0; j < COLS; ++j) {
       board.at(i).push_back(Square(i, j));
     }
-    for (int color = 0; color < NUM_COLORS; ++color) {
-        for (int type = 0; type < NUM_PIECE_TYPES; ++type) {
-            num_alive_pieces[color][type] = 0;
-        }
-    }
   }
 }
 
@@ -38,6 +33,11 @@ void Board::empty() {
   }
   while (moves_played.size() > 0) {
     moves_played.pop_back();
+  }
+  for (int color = 0; color < NUM_COLORS; ++color) {
+      for (int type = 0; type < NUM_PIECE_TYPES; ++type) {
+          num_alive_pieces[color][type] = 0;
+      }
   }
 }
 
