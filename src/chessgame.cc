@@ -17,11 +17,11 @@ ChessGame::ChessGame() {
 void ChessGame::reset(int white_player_type, int black_player_type) {
     if (!setted) {
         board.init();
+        player_in_turn = board.WHITE;
     } else {
         setted = false;
     }
     state = ACTIVE;
-    player_in_turn = board.WHITE;
     players[board.WHITE] = createPlayer(board.WHITE, white_player_type);
     players[board.BLACK] = createPlayer(board.BLACK, black_player_type);
     board.render();
@@ -53,8 +53,10 @@ void ChessGame::setup() {
             } else if (input == "-") {
                 std::string pos;
                 std::cin >> pos;
-                auto pc = board.getSquare(pos)->getPiece();
-                board.removePiece(pc);
+                if (!board.getSquare(pos)->isEmpty()) {
+                    auto pc = board.getSquare(pos)->getPiece();
+                    board.removePiece(pc);
+                }
             } else if (input == "=") {
                 std::string color;
                 std::cin >> color;
