@@ -426,7 +426,7 @@ bool Board::inRange(int row, int col) {
 }
 
 bool Board::isValidSetup(int mode) {
-  bool king_already_found[NUM_COLORS];
+  bool king_already_found[NUM_COLORS] = {false, false};
   for (int color = WHITE; color < NUM_COLORS; ++color) {
     for (auto pc: pieces[color]) {
       // if king
@@ -439,10 +439,18 @@ bool Board::isValidSetup(int mode) {
         // rule setup
         kings[color] = pc;
         if (mode == STANDARD) {
-          if (!(pc->getColor() == WHITE && pc->getPosition() != getSquare("e1"))) {
-            pc->setHasMoved(true);
-          } else if (!(pc->getColor() == BLACK && pc->getPosition() != getSquare("e8"))) {
-            pc->setHasMoved(true);
+          int e_file = 'e' - 'a';
+          int rank_1 = '8' - '1'; 
+          int rank_8 = '8' - '8';
+          Square *pos = pc->getPosition();
+          if (pc->getColor() == WHITE) {
+            if (!(pos->getCol() == e_file && pos->getRow() == rank_1)) {
+              pc->setHasMoved(true);
+            }
+          } else if (pc->getColor() == BLACK) {
+            if (!(pos->getCol() == e_file && pos->getRow() == rank_8)) {
+              pc->setHasMoved(true);
+            }
           }
         }
       // if pawn
