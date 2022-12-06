@@ -25,14 +25,11 @@ class ChessGame {
     enum {INITIAL = 0, ACTIVE, WHITE_WIN, BLACK_WIN, STALEMATE, INSUFFICIENT_MATERIAL};
     enum {HUMAN = 0, COMPUTERLEVEL1, COMPUTERLEVEL2, COMPUTERLEVEL3, COMPUTERLEVEL4};
     ChessGame();
-    void setup();
     void reset(int white_player_type, int black_player_type);
     void takeTurn();
-    void resign(int player);
+    void setup();
+    void resign(int side);
     void addDisplay(int display);
-    void placePiece(char text, string pos);
-    void removePiece(string pos);
-    void getSquare(string pos);
     void readPieceFromChar(char c, int& color, int& piece);
     unique_ptr<Player> createPlayer(int side, int player_type);
     int getState();

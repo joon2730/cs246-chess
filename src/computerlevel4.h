@@ -11,10 +11,10 @@ using std::string;
 class ComputerLevel4: public ChessAI, public Computer {
     static const int NUM_PIECE_TYPES = 6;
     static const int ROWS = 8, COLS = 8;
+    int evaluateBoard(Board& board) override;
   public:
     ComputerLevel4(int side);
     Move makeMove(Board &board) override;
-    int evaluateBoard(Board& board) override;
   private:
     // heuristics for evaluating board
     const int piece_value[NUM_PIECE_TYPES] = {100, 320, 330, 500, 900, 20000};

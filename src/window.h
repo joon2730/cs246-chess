@@ -16,7 +16,7 @@ class Xwindow {
 	std::map<char, Pixmap*> imageMap; //pointers to loaded images (mapped by char, eg K,k,Q)
   	unsigned int axis_width, axis_height;
 
-	public:
+  public:
 	Xwindow(int width=800, int height=800);  // Constructor; displays the window.
 	~Xwindow();                              // Destructor; destroys the window.
 
@@ -25,23 +25,25 @@ class Xwindow {
 
 	// Draws a string
 	void drawString(int x, int y, std::string msg, int colour = Black);
-	void drawBigString(int x, int y, std::string msg, int colour = Black);
 
-	// if you use this function, make sure font exists on the undergrad environment
-	void drawStringFont(int x, int y, std::string msg, std::string font, int colour = Black);
+	// Draws a bigger
+	void drawBigString(int x, int y, std::string msg, int colour = Black);
 
 	// Draws a rectangle
 	void fillRectangle(int x, int y, int width, int height, int colour=Black);
-
-  	void showAvailableFonts();
-
-	// Creates a graphic context gc
-	GC create_gc(Display* display, Window win, int reverse_video);
 
 	// Draws a chess piece
 	void drawPiece(char piece, int x, int y, int width, int height);
 
   private:
+	// Creates a graphic context gc
+	GC create_gc(Display* display, Window win, int reverse_video);
+
+	// if you use this function, make sure font exists on the undergrad environment
+	void drawStringFont(int x, int y, std::string msg, std::string font, int colour = Black);
+
+  	void showAvailableFonts();
+
 	void printMessage(int x, int y, const std::string& msg, int colour, XFontStruct& f);
 };
 
