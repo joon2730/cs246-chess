@@ -52,5 +52,3 @@ int ComputerLevel2::evaluateMove (Board& board, Move& mv) {
 }
 
 
-
-

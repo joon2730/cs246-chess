@@ -46,27 +46,6 @@ vector<Move> Queen::listPseudoLegalMoves(Board& board) {
             }
         } 
     }
-    // int col = position->getCol();
-    // int row = position->getRow();
-    // int cols = board->getCols();
-    // int rows = board->getRows();
-    // for (int col_step = -1; col_step <= 1; ++col_step) {
-    //     for (int row_step = -1; row_step <= 1; ++row_step) {
-    //         int cur_col = col + col_step;
-    //         int cur_row = row + row_step;
-    //         while (!(cur_row < 0 || rows <= cur_row || cur_col < 0 || cols <= cur_col)) {
-    //             Square *cur_pos = board->getSquare(cur_row, cur_col);
-    //             if (cur_pos->isEmpty()) {
-    //                 pseudo_legal_moves.push_back(new Move(position, board->getSquare(cur_row, cur_col)));
-    //             } else if (color != cur_pos->getPiece()->getColor()) {
-    //                 pseudo_legal_moves.push_back(new Move(position, board->getSquare(cur_row, cur_col)));
-    //                 break;
-    //             } else {
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
     return pseudo_legal_moves;
 }
 
@@ -78,3 +57,4 @@ string Queen::printText() {
         return "q";
     }
 }
+

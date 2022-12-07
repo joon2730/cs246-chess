@@ -73,3 +73,4 @@ class Board: public Subject {
     int getCols();
 };
 #endif
+

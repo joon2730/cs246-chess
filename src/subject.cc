@@ -17,3 +17,4 @@ void Subject::notifyObservers() {
   for (auto ob : observers) ob->notify();
 }
 
+

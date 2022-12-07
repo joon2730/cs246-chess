@@ -35,3 +35,4 @@ class ChessGame {
     int getState();
 };
 #endif
+

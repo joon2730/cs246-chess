@@ -16,6 +16,7 @@ class ComputerLevel4: public ChessAI, public Computer {
     ComputerLevel4(int side);
     Move makeMove(Board &board) override;
   private:
+    const int depth = 3;
     // heuristics for evaluating board
     const int piece_value[NUM_PIECE_TYPES] = {100, 320, 330, 500, 900, 20000};
     int position_values[NUM_PIECE_TYPES][ROWS][COLS] = {

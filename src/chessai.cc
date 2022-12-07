@@ -106,3 +106,4 @@ int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft) {
 vector<std::shared_ptr<Piece>>& ChessAI::getPieces(Board& board, int color) {
     return board.pieces[color];
 }
+

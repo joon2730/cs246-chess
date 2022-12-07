@@ -69,6 +69,11 @@ void ChessGame::setup() {
                 }
             } else if (input == "done") {
                 if (board.isValidSetup(mode)) {
+                    if (board.isStalemated(player_in_turn)) {
+                        state = STALEMATE;
+                    } else if (board.isInsufficientMaterial()) {
+                        state = INSUFFICIENT_MATERIAL;
+                    }
                     return;
                 } else {
                     throw (std::invalid_argument("Invalid setup"));

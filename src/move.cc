@@ -31,6 +31,6 @@ std::ostream& operator<<(std::ostream& out, Move &mv) {
   }
   out << std::endl;
   return out;
-  
-  
 }
+
+

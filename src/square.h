@@ -26,3 +26,4 @@ class Square {
 std::ostream& operator<<(std::ostream& out, Square& sq);
 
 #endif
+

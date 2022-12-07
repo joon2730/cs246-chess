@@ -32,3 +32,4 @@ struct Move {
 
 std::ostream& operator<<(std::ostream& out, Move &mv);
 #endif
+

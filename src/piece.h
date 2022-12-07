@@ -37,3 +37,4 @@ class Piece {
 };
 
 #endif
+

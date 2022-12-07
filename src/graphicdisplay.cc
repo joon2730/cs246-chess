@@ -78,3 +78,5 @@ void GraphicDisplay::notify() {
 }
 
 GraphicDisplay::~GraphicDisplay() { subject->detach(this); }
+
+

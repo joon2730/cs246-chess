@@ -22,3 +22,4 @@ Move ComputerLevel1::makeMove(Board &board) {
     int randint = std::rand();
     return legal_moves.at(randint % len);
 }
+

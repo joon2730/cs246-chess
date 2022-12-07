@@ -472,6 +472,9 @@ bool Board::isValidSetup(int mode) {
         }
       }
     }
+    if (!king_already_found[color]) {
+      return false;
+    }
     if (detectChecked(color)) {
       return false;
     }
@@ -505,3 +508,4 @@ bool Board::isInsufficientMaterial() {
 int Board::getRows() { return ROWS; }
 
 int Board::getCols() { return COLS; }
+

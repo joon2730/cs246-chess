@@ -8,3 +8,4 @@ int sign(int x);
 bool isStraight(int x1, int y1, int x2, int y2);
 bool isDiagonal(int x1, int y1, int x2, int y2);
 #endif
+

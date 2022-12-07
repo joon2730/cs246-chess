@@ -155,3 +155,4 @@ string Pawn::printText() {
 }
 
 bool Pawn::getMoved() { return moved_two_steps; }
+

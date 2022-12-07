@@ -62,3 +62,4 @@ string Rook::printText() {
     return "r";
   }
 }
+

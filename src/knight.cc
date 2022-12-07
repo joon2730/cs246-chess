@@ -51,3 +51,5 @@ std::string Knight::printText() {
     return "n";
   }
 }
+
+

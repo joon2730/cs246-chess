@@ -56,3 +56,4 @@ std::string Bishop::printText() {
     return "b";
   }
 }
+

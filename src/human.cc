@@ -97,3 +97,5 @@ Move Human::createMove(Board& board, string p1, string p2) {
     }
     return Move(start, end);
 }
+
+

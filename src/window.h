@@ -15,6 +15,7 @@ class Xwindow {
 	unsigned int bitmap_width, bitmap_height;
 	std::map<char, Pixmap*> imageMap; //pointers to loaded images (mapped by char, eg K,k,Q)
   	unsigned int axis_width, axis_height;
+    std::string directory = "../img/";
 
   public:
 	Xwindow(int width=800, int height=800);  // Constructor; displays the window.
@@ -48,3 +49,4 @@ class Xwindow {
 };
 
 #endif
+

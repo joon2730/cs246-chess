@@ -40,3 +40,4 @@ std::ostream& operator<<(std::ostream& out, Square& sq) {
   }
   return out;
 }
+

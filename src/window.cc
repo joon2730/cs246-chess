@@ -69,7 +69,6 @@ Xwindow::Xwindow(int width, int height): width{width}, height{height} {
     XSync(d, False);
 
     char piece_names[12] = {'K','Q','R','B','N','P','k','q','r','b','n','p'};
-    string directory = "../img/";
     string extension = ".xbm";
     string filename;
 

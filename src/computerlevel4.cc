@@ -20,7 +20,6 @@ Move ComputerLevel4::makeMove(Board &board) {
             auto_move = true;
         }
     }
-    int depth = 3;
     auto preferred_moves = searchMoves(board, side, depth);
     int len = preferred_moves.size();
     int randint = std::rand();
@@ -48,9 +47,6 @@ int ComputerLevel4::evaluateBoard(Board& board) {
     }
     return value;
 }
-
-
-
 
 
 
