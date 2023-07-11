@@ -11,8 +11,9 @@
 - Install Xquarts for graphics</br>
 For mac, try `g++14 window.cc graphicsdemo.cc -o graphicsdemo -lX11`
 - Compile codes</br>
-makefile is included, try `make`
-- Run the runfile
+Makefile is included, try `make`
+- Run the runfile</br>
+`./chess`
 
 ### Commands
 - `game [white-player] [black-player]` starts a new game. The parameters white-player and black-player
