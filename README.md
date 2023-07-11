@@ -10,9 +10,9 @@
 ### Requirements
 - Install Xquarts for graphics</br>
 For mac, try `g++14 window.cc graphicsdemo.cc -o graphicsdemo -lX11`
-- Compile codes
+- Compile codes</br>
 makefile is included, try `make`
-- run the runfile
+- Run the runfile
 
 ### Commands
 - `game [white-player] [black-player]` starts a new game. The parameters white-player and black-player
