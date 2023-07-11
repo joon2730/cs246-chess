@@ -7,7 +7,6 @@
 </div>
 
 ## How to Run
-### Requirements
 - Install Xquarts for graphics</br>
 For mac, try `g++14 window.cc graphicsdemo.cc -o graphicsdemo -lX11`
 - Compile codes</br>
@@ -15,7 +14,7 @@ Makefile is included, try `make`
 - Run the runfile</br>
 `./chess`
 
-### Commands
+## Commands
 - `game [white-player] [black-player]` starts a new game. The parameters white-player and black-player
 can be either human or computer[1-4].
 - `resign` concedes the game to your opponent. This is the only way, outside of winning or drawing the game, to end a
