@@ -16,7 +16,7 @@ class ChessAI {
     bool time_limited = false;
     std::chrono::steady_clock::time_point deadline;
     void checkTime() const;
-    static const int MATE_SCORE = 100000;
+    static const int MATE_SCORE = 30000;
     int alphabetaMax(Board& board, int alpha, int beta, int depthleft, int ply_from_root);
     int alphabetaMin(Board& board, int alpha, int beta, int depthleft, int ply_from_root);
   protected:

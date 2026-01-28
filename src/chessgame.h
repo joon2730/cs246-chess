@@ -22,7 +22,7 @@ class ChessGame {
     bool setted = false;
   public:
     enum {TEXT_DISPLAY = 0, GRAPHIC_DISPLAY};
-    enum {INITIAL = 0, ACTIVE, WHITE_WIN, BLACK_WIN, STALEMATE, INSUFFICIENT_MATERIAL};
+    enum {INITIAL = 0, ACTIVE, WHITE_WIN, BLACK_WIN, STALEMATE, INSUFFICIENT_MATERIAL, THREEFOLD_REPETITION};
     enum {HUMAN = 0, COMPUTERLEVEL1, COMPUTERLEVEL2, COMPUTERLEVEL3, COMPUTERLEVEL4, COMPUTERLEVEL5};
     ChessGame();
     void reset(int white_player_type, int black_player_type);

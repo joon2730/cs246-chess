@@ -1,5 +1,6 @@
 #include "board.h"
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include "bishop.h"
 #include "king.h"
@@ -24,6 +25,53 @@ Board::~Board() { empty(); }
 
 void Board::render() { notifyObservers(); }
 
+void Board::resetRepetitionTracking() {
+  repetition_count.clear();
+  repetition_history.clear();
+  recordCurrentPosition();
+}
+
+void Board::recordCurrentPosition() {
+  string key = positionKey();
+  repetition_history.push_back(key);
+  repetition_count[key] += 1;
+}
+
+string Board::positionKey() const {
+  std::ostringstream oss;
+  oss << (side_to_move == WHITE ? 'w' : 'b') << '|';
+  for (int r = 0; r < ROWS; ++r) {
+    for (int c = 0; c < COLS; ++c) {
+      const Square &sq = board.at(r).at(c);
+      if (sq.isEmpty()) {
+        oss << '.' << '.';
+      } else {
+        auto pc = sq.getPiece();
+        // include has_moved because this engine's move legality depends on it
+        oss << pc->printText()[0] << (pc->getHasMoved() ? '1' : '0');
+      }
+    }
+  }
+  oss << '|';
+  // en passant target (engine-relevant): only exists immediately after a pawn two-square move
+  if (moves_played.size() > 0) {
+    const Move &last = moves_played.back();
+    if (last.is_pawns_two_square_move && last.start && last.end && last.moving_piece
+        && last.moving_piece->getName() == PAWN) {
+      int row = (last.start->getRow() + last.end->getRow()) / 2;
+      int col = last.end->getCol();
+      char file = static_cast<char>('a' + col);
+      char rank = static_cast<char>('8' - row);
+      oss << file << rank;
+    } else {
+      oss << '-';
+    }
+  } else {
+    oss << '-';
+  }
+  return oss.str();
+}
+
 void Board::empty() {
   for (int i = 0; i < NUM_COLORS; ++i) {
     while (pieces[i].size() > 0) {
@@ -41,6 +89,8 @@ void Board::empty() {
           num_alive_pieces[color][type] = 0;
       }
   }
+  repetition_count.clear();
+  repetition_history.clear();
 }
 
 int Board::opponent(int color) {
@@ -93,6 +143,7 @@ void Board::removePiece(shared_ptr<Piece>& pc) {
 
 void Board::init() {
   empty();
+  side_to_move = WHITE;
   int backrow[COLS] = {ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK};
   for (int col = 0; col < COLS; ++col) {
     addPiece(BLACK, backrow[col], getSquare(0, col));
@@ -104,6 +155,7 @@ void Board::init() {
     resigned[color] = false;
   }
   updateState();
+  resetRepetitionTracking();
 }
 
 bool Board::isPseudoLegal(Move& mv) {
@@ -303,6 +355,9 @@ void Board::push(Move& mv) {
   updateState();
   // record the move
   moves_played.push_back(mv);
+  // next player's turn
+  side_to_move = opponent(side_to_move);
+  recordCurrentPosition();
 }
 
 void Board::undoMove(Move& mv) {
@@ -371,10 +426,24 @@ void Board::pop() {
   if (moves_played.size() == 0) {
     std::logic_error("getLastMove: No move to pop found");
   }
-  Move& mv = moves_played.back();
+  // remove current position from repetition history (position after last move)
+  if (repetition_history.size() > 0) {
+    string key = repetition_history.back();
+    repetition_history.pop_back();
+    auto it = repetition_count.find(key);
+    if (it != repetition_count.end()) {
+      it->second -= 1;
+      if (it->second <= 0) {
+        repetition_count.erase(it);
+      }
+    }
+  }
+  Move mv = moves_played.back();
   moves_played.pop_back();
   undoMove(mv);
   updateState();
+  // back to the player who made the popped move
+  side_to_move = opponent(side_to_move);
 }
 
 int Board::getNumMovesPlayed() {
@@ -386,6 +455,13 @@ Move Board::getLastMove() {
     std::logic_error("getLastMove: No move to pop found");
   }
   return moves_played.back();
+}
+
+Move Board::getMovePlayed(int index) {
+  if (index < 0 || static_cast<size_t>(index) >= moves_played.size()) {
+    throw std::invalid_argument("getMovePlayed: index out of range");
+  }
+  return moves_played.at(static_cast<size_t>(index));
 }
 
 Square* Board::getSquare(string pos) {
@@ -417,6 +493,32 @@ int Board::getNumAlivePieces(int color, int type) {
   }
   return num_alive_pieces[color][type];
 }
+
+void Board::setSideToMove(int color) {
+  if (color != WHITE && color != BLACK) {
+    throw std::invalid_argument("setSideToMove: Invalid color");
+  }
+  side_to_move = color;
+}
+
+bool Board::isThreefoldRepetition() {
+  string key = positionKey();
+  auto it = repetition_count.find(key);
+  if (it == repetition_count.end()) return false;
+  return it->second >= 3;
+}
+
+void Board::resetRepetition() { resetRepetitionTracking(); }
+
+bool Board::isStudyMode() const { return study_mode; }
+
+void Board::setStudyMode(bool enabled) { study_mode = enabled; }
+
+void Board::toggleStudyMode() { study_mode = !study_mode; }
+
+bool Board::isTextDisplayEnabled() const { return text_display_enabled; }
+
+void Board::setTextDisplayEnabled(bool enabled) { text_display_enabled = enabled; }
 
 bool Board::inRange(int row, int col) {
   if (row < 0 || ROWS <= row || col < 0 || COLS <= col) {

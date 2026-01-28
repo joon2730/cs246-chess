@@ -18,9 +18,13 @@ class Square {
     void empty();
     // Return whether square is empty
     bool isEmpty();
+    bool isEmpty() const;
     std::shared_ptr<Piece> getPiece();
+    std::shared_ptr<Piece> getPiece() const;
     int getRow();
+    int getRow() const;
     int getCol();
+    int getCol() const;
 };
 
 std::ostream& operator<<(std::ostream& out, Square& sq);

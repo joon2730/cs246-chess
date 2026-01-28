@@ -8,6 +8,9 @@ TextDisplay::TextDisplay(Board *s): subject{s} { subject->attach(this); }
 TextDisplay::~TextDisplay() { subject->detach(this); }
 
 void TextDisplay::notify() {
+  if (!subject->isTextDisplayEnabled()) {
+    return;
+  }
   for (int i = 0; i < 8; ++i) {
     out << 8 - i << " ";
     for (int j = 0; j < 8; ++j) {

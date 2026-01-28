@@ -27,15 +27,15 @@ vector<Move> ChessAI::searchMoves(Board& board, int side, int depth) {
         int max_score = INT_MIN;
         for (auto mv: legal_moves) {
             checkTime();
-            board.doMove(mv);
+            board.push(mv);
             int score = 0;
             try {
                 score = alphabetaMin(board, INT_MIN, INT_MAX, depth, 1);
             } catch (const TimeUp&) {
-                board.undoMove(mv);
+                board.pop();
                 throw;
             }
-            board.undoMove(mv);
+            board.pop();
             if (score == max_score) {
                 best_moves.push_back(mv);
             } else if (score > max_score) {
@@ -48,15 +48,15 @@ vector<Move> ChessAI::searchMoves(Board& board, int side, int depth) {
         int min_score = INT_MAX;
         for (auto mv: legal_moves) {
             checkTime();
-            board.doMove(mv);
+            board.push(mv);
             int score = 0;
             try {
                 score = alphabetaMax(board, INT_MIN, INT_MAX, depth, 1);
             } catch (const TimeUp&) {
-                board.undoMove(mv);
+                board.pop();
                 throw;
             }
-            board.undoMove(mv);
+            board.pop();
             if (score == min_score) {
                 best_moves.push_back(mv);
             } else if (score < min_score) {
@@ -72,6 +72,9 @@ vector<Move> ChessAI::searchMoves(Board& board, int side, int depth) {
 
 int ChessAI::alphabetaMax(Board& board, int alpha, int beta, int depthleft, int ply_from_root) {
     checkTime();
+    if (board.isThreefoldRepetition()) {
+        return 0;
+    }
     if (depthleft == 0) {
         return evaluateBoard(board);
     }
@@ -87,15 +90,15 @@ int ChessAI::alphabetaMax(Board& board, int alpha, int beta, int depthleft, int 
     int max_score = INT_MIN;
     for (auto mv: legal_moves) {
         checkTime();
-        board.doMove(mv);
+        board.push(mv);
         int score = 0;
         try {
             score = alphabetaMin(board, alpha, beta, depthleft-1, ply_from_root + 1);
         } catch (const TimeUp&) {
-            board.undoMove(mv);
+            board.pop();
             throw;
         }
-        board.undoMove(mv);
+        board.pop();
         if (score > max_score) {
             max_score = score;
         }
@@ -111,6 +114,9 @@ int ChessAI::alphabetaMax(Board& board, int alpha, int beta, int depthleft, int 
 
 int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft, int ply_from_root) {
     checkTime();
+    if (board.isThreefoldRepetition()) {
+        return 0;
+    }
     if (depthleft == 0) {
         return evaluateBoard(board);
     }
@@ -126,15 +132,15 @@ int ChessAI::alphabetaMin(Board& board, int alpha, int beta, int depthleft, int 
     int min_score = INT_MAX;
     for (auto mv: legal_moves) {
         checkTime();
-        board.doMove(mv);
+        board.push(mv);
         int score = 0;
         try {
             score = alphabetaMax(board, alpha, beta, depthleft-1, ply_from_root + 1);
         } catch (const TimeUp&) {
-            board.undoMove(mv);
+            board.pop();
             throw;
         }
-        board.undoMove(mv);
+        board.pop();
         if (score < min_score) {
             min_score = score;
         }

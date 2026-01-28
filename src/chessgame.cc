@@ -22,6 +22,8 @@ void ChessGame::reset(int white_player_type, int black_player_type) {
     } else {
         setted = false;
     }
+    board.setSideToMove(player_in_turn);
+    board.resetRepetition();
     state = ACTIVE;
     players[board.WHITE] = createPlayer(board.WHITE, white_player_type);
     players[board.BLACK] = createPlayer(board.BLACK, black_player_type);
@@ -70,6 +72,8 @@ void ChessGame::setup() {
                 }
             } else if (input == "done") {
                 if (board.isValidSetup(mode)) {
+                    board.setSideToMove(player_in_turn);
+                    board.resetRepetition();
                     if (board.isStalemated(player_in_turn)) {
                         state = STALEMATE;
                     } else if (board.isInsufficientMaterial()) {
@@ -91,6 +95,7 @@ void ChessGame::takeTurn() {
     if (state != ACTIVE) {
         throw std::logic_error("Game is already done");
     }
+    board.setSideToMove(player_in_turn);
     Move mv = players[player_in_turn]->makeMove(board);
     board.push(mv);
     if (board.hasResigned(player_in_turn)) {
@@ -99,6 +104,11 @@ void ChessGame::takeTurn() {
         } else {
             state = WHITE_WIN;
         }
+    }
+    if (state == ACTIVE && board.isThreefoldRepetition()) {
+        state = THREEFOLD_REPETITION;
+        board.render();
+        return;
     }
     board.render();
     player_in_turn = player_in_turn == board.WHITE ? board.BLACK : board.WHITE; // white if black, black if white

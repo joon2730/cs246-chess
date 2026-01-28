@@ -12,21 +12,32 @@ ComputerLevel4::ComputerLevel4(int side): Computer{side} {
 
 Move ComputerLevel4::makeMove(Board &board) {
     std::string input;
-    bool study = false;
     while (!auto_move) {
         std::cin >> input;
         if (input == "move") {
             break;
         } else if (input == "study") {
-            study = true;
-            break;
+            board.toggleStudyMode();
+            std::cout << "study mode: " << (board.isStudyMode() ? "on" : "off") << std::endl;
+        } else if (input == "text") {
+            std::string arg;
+            std::cin >> arg;
+            if (arg == "on") {
+                board.setTextDisplayEnabled(true);
+            } else if (arg == "off") {
+                board.setTextDisplayEnabled(false);
+            } else {
+                std::cout << "Usage: text on|off" << std::endl;
+            }
+            board.notifyObservers();
         } else if (input == "auto") {
             auto_move = true;
         }
     }
-    if (study) {
+    if (board.isStudyMode()) {
         std::cout << "computer is thinking..." << std::endl;
         std::cout << "current score: " << evaluateBoard(board) << std::endl;
+        std::cout << "search depth: " << depth << std::endl;
     }
     const bool was_auto = auto_move;
     auto preferred_moves = searchMoves(board, side, depth);

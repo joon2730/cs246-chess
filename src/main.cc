@@ -63,6 +63,9 @@ int main() {
         } else if (game->getState() == game->INSUFFICIENT_MATERIAL) {
             white_score += 5;
             black_score += 5;
+        } else if (game->getState() == game->THREEFOLD_REPETITION) {
+            white_score += 5;
+            black_score += 5;
         }
 
     }

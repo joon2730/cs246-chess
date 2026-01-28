@@ -65,6 +65,22 @@ Move Human::makeMove(Board &board) {
                     board.pop();
                     board.pop();
                     board.notifyObservers();
+                } else if (input == "study") {
+                    // study mode toggle (does not make a move)
+                    board.toggleStudyMode();
+                    std::cout << "study mode: " << (board.isStudyMode() ? "on" : "off") << std::endl;
+                } else if (input == "text") {
+                    // text on/off toggle
+                    std::string arg;
+                    std::cin >> arg;
+                    if (arg == "on") {
+                        board.setTextDisplayEnabled(true);
+                    } else if (arg == "off") {
+                        board.setTextDisplayEnabled(false);
+                    } else {
+                        throw std::invalid_argument("Usage: text on|off");
+                    }
+                    board.notifyObservers();
                 }
             }
         } catch (std::invalid_argument& ex) {

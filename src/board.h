@@ -6,10 +6,12 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <unordered_map>
 
 using std::string;
 using std::vector;
 using std::shared_ptr;
+using std::unordered_map;
 
 class Board: public Subject {
   public:
@@ -31,6 +33,15 @@ class Board: public Subject {
     bool checkmated[NUM_COLORS];
     bool stalemated[NUM_COLORS];
     bool resigned[NUM_COLORS];
+    // Threefold repetition tracking (position key includes side-to-move).
+    int side_to_move = WHITE;
+    unordered_map<string, int> repetition_count;
+    vector<string> repetition_history;
+    bool study_mode = false;
+    bool text_display_enabled = true;
+    void resetRepetitionTracking();
+    void recordCurrentPosition();
+    string positionKey() const;
     // Empties pieces and moves_played
     void empty();
     void updateState();
@@ -63,7 +74,17 @@ class Board: public Subject {
     vector<Move> listLegalMoves(int color);
     int getNumMovesPlayed();
     Move getLastMove();
+    // 0-based access to move history (by value).
+    Move getMovePlayed(int index);
     int getNumAlivePieces(int color, int type);
+    void setSideToMove(int color);
+    bool isThreefoldRepetition();
+    void resetRepetition();
+    bool isStudyMode() const;
+    void setStudyMode(bool enabled);
+    void toggleStudyMode();
+    bool isTextDisplayEnabled() const;
+    void setTextDisplayEnabled(bool enabled);
     // Returns a pointer to Square in board at row and col corresponding to coord; ex: "d4", "e4" 
     Square* getSquare(string pos);
     Square* getSquare(int row, int col);

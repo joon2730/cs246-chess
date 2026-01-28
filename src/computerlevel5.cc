@@ -4,6 +4,7 @@
 #include "move.h"
 #include "piece.h"
 #include "square.h"
+#include "openingbook.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -14,7 +15,7 @@ ComputerLevel5::ComputerLevel5(int side): Computer{side} {
     std::srand(std::time(0));
 }
 
-int ComputerLevel5::evaluateBoard(Board& board) {
+int ComputerLevel5::evaluateBoard(Board& board) {   
     int value = 0;
     for (int type = 0; type < board.NUM_PIECE_TYPES; ++type) {
         value += piece_value[type] * board.getNumAlivePieces(MAXIMIZING_PLAYER, type);
@@ -46,55 +47,7 @@ static std::string toCoord(Square *sq) {
 }
 
 bool ComputerLevel5::tryOpeningBook(Board& board, Move& out) {
-    // "First 2 plies" book:
-    // - If this is the very first move (white to play), choose one of common openings.
-    // - If this is black's first move, respond based on white's first move.
-    const int ply = board.getNumMovesPlayed();
-    if (ply == 0 && side == board.WHITE) {
-        // candidate openings for White
-        std::vector<std::pair<std::string, std::string>> cands = {
-            {"e2", "e4"},
-            {"d2", "d4"},
-            {"c2", "c4"},
-            {"g1", "f3"},
-        };
-        auto pick = cands.at(std::rand() % cands.size());
-        out = Move(board.getSquare(pick.first), board.getSquare(pick.second));
-        if (!board.isLegal(out)) return false;
-        return true;
-    }
-
-    if (ply == 1 && side == board.BLACK) {
-        Move last = board.getLastMove();
-        std::string w_from = toCoord(last.start);
-        std::string w_to = toCoord(last.end);
-
-        std::vector<std::pair<std::string, std::string>> replies;
-        if (w_from == "e2" && w_to == "e4") {
-            // vs 1.e4: e5 / c5 / c6
-            replies = {{"e7", "e5"}, {"c7", "c5"}, {"c7", "c6"}};
-        } else if (w_from == "d2" && w_to == "d4") {
-            // vs 1.d4: d5 / Nf6
-            replies = {{"d7", "d5"}, {"g8", "f6"}};
-        } else if (w_from == "c2" && w_to == "c4") {
-            // vs 1.c4: e5 / c5
-            replies = {{"e7", "e5"}, {"c7", "c5"}};
-        } else if (w_from == "g1" && w_to == "f3") {
-            // vs 1.Nf3: d5 / Nf6
-            replies = {{"d7", "d5"}, {"g8", "f6"}};
-        } else {
-            return false;
-        }
-
-        // Try a few random picks until a legal one is found.
-        for (int attempt = 0; attempt < 6 && !replies.empty(); ++attempt) {
-            auto pick = replies.at(std::rand() % replies.size());
-            out = Move(board.getSquare(pick.first), board.getSquare(pick.second));
-            if (board.isLegal(out)) return true;
-        }
-    }
-
-    return false;
+    return OpeningBook::trySelectNextMove(board, side, OpeningBook::level5Lines(), out);
 }
 
 Move ComputerLevel5::makeMove(Board &board) {
@@ -103,14 +56,38 @@ Move ComputerLevel5::makeMove(Board &board) {
         std::cin >> input;
         if (input == "move") {
             break;
+        } else if (input == "study") {
+            board.toggleStudyMode();
+            std::cout << "study mode: " << (board.isStudyMode() ? "on" : "off") << std::endl;
+        } else if (input == "text") {
+            std::string arg;
+            std::cin >> arg;
+            if (arg == "on") {
+                board.setTextDisplayEnabled(true);
+            } else if (arg == "off") {
+                board.setTextDisplayEnabled(false);
+            } else {
+                std::cout << "Usage: text on|off" << std::endl;
+            }
+            board.notifyObservers();
         } else if (input == "auto") {
             auto_move = true;
         }
     }
 
-    // Opening book (only first 2 plies)
+    if (board.isStudyMode()) {
+        std::cout << "computer is thinking..." << std::endl;
+        std::cout << "current score: " << evaluateBoard(board) << std::endl;
+    }
+
+    int max_completed_depth = 0;
+
+    // Opening book (up to 3 ply)
     Move book_mv = Move(board.getSquare(0,0), board.getSquare(0,0));
     if (tryOpeningBook(board, book_mv)) {
+        if (board.isStudyMode()) {
+            std::cout << "max depth completed: " << max_completed_depth << std::endl;
+        }
         // auto-mode logging (consistent with other levels)
         if (auto_move) {
             std::cout << "computer moved: " << toCoord(book_mv.start) << " " << toCoord(book_mv.end) << std::endl;
@@ -132,6 +109,7 @@ Move ComputerLevel5::makeMove(Board &board) {
             auto cand = searchMoves(board, side, depth);
             if (!cand.empty()) {
                 best_moves = std::move(cand);
+                max_completed_depth = depth;
             }
             ++depth;
         } catch (const TimeUp&) {
@@ -143,10 +121,15 @@ Move ComputerLevel5::makeMove(Board &board) {
     // Fallback: if nothing completed (edge case), do a shallow search without time limit.
     if (best_moves.empty()) {
         best_moves = searchMoves(board, side, 1);
+        max_completed_depth = std::max(max_completed_depth, 1);
     }
 
     int idx = std::rand() % best_moves.size();
     Move mv = best_moves.at(idx);
+
+    if (board.isStudyMode()) {
+        std::cout << "max depth completed: " << max_completed_depth << std::endl;
+    }
 
     if (auto_move) {
         if (mv.is_kingside_castling) {
