@@ -45,6 +45,21 @@ GraphicDisplay::GraphicDisplay(Board *s): subject{s} {
 }
 
 void GraphicDisplay::notify() {
+  int new_from_row = -1, new_from_col = -1;
+  int new_to_row = -1, new_to_col = -1;
+  bool new_to_is_capture = false;
+
+  if (subject->getNumMovesPlayed() > 0) {
+    Move last = subject->getLastMove();
+    if (last.start && last.end) {
+      new_from_row = last.start->getRow();
+      new_from_col = last.start->getCol();
+      new_to_row = last.end->getRow();
+      new_to_col = last.end->getCol();
+      new_to_is_capture = (last.killed_piece != nullptr) || last.is_attack || last.is_enpassant;
+    }
+  }
+
   for (int row = 0; row < 8; ++row) {
     for (int col = 0; col < 8; ++col) {
       Square* sq = subject->getSquare(row, col);
@@ -60,13 +75,33 @@ void GraphicDisplay::notify() {
         current_state.at(row).at(col) = sq->getPiece()->printText()[0];
       } 
 
+      const bool was_last_highlight =
+          (row == last_from_row && col == last_from_col) || (row == last_to_row && col == last_to_col);
+      const bool is_new_from = (row == new_from_row && col == new_from_col);
+      const bool is_new_to = (row == new_to_row && col == new_to_col);
+      const bool is_new_highlight = is_new_from || is_new_to;
+
+      if (was_last_highlight || is_new_highlight) {
+        update = true;
+      }
+
       if (update) {
 
         int x = col * (TILE_WIDTH + HOZ_GAP) + HOZ_GAP + EDGE_LEFT;
         int y = row * (TILE_HEIGHT + VER_GAP) + VER_GAP;
         bool dark = ((row + col) % 2 == 0);
         // Always repaint the tile first so piece redraws don't leave artifacts.
+        // Highlight last move with a border so the tile texture stays visible:
+        // - from: teal-ish border
+        // - to: teal-ish border, but sandy-orange border if it was a capture (incl. en passant)
         window->fillTile(x, y, TILE_WIDTH, TILE_HEIGHT, dark);
+        if (is_new_from) {
+          window->drawHighlightBorder(x, y, TILE_WIDTH, TILE_HEIGHT, window->MoveHighlight, 4);
+        } else if (is_new_to) {
+          window->drawHighlightBorder(x, y, TILE_WIDTH, TILE_HEIGHT,
+                                      new_to_is_capture ? window->CaptureHighlight : window->MoveHighlight,
+                                      new_to_is_capture ? 6 : 4);
+        }
         if (sq->isEmpty()) {
           // tile already painted
         } else {
@@ -80,6 +115,11 @@ void GraphicDisplay::notify() {
       }
     }
   }
+
+  last_from_row = new_from_row;
+  last_from_col = new_from_col;
+  last_to_row = new_to_row;
+  last_to_col = new_to_col;
 }
 
 GraphicDisplay::~GraphicDisplay() { subject->detach(this); }

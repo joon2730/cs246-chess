@@ -37,12 +37,13 @@ Xwindow::Xwindow(int width, int height): width{width}, height{height} {
 	// Set up colours.
 	XColor xcolour;
 	Colormap cmap;
-	char color_vals[14][20] = {"white",  "black", "red",      "green",
+	char color_vals[16][20] = {"white",  "black", "red",      "green",
 		"blue",   "cyan",  "yellow",   "magenta",
-		"orange", "brown", "dimgray", "lightsteelblue", "steelblue", "aliceblue"};
+		"orange", "brown", "dimgray", "lightsteelblue", "steelblue", "aliceblue",
+		"lightseagreen", "sandybrown"};
 
 	cmap=DefaultColormap(d,DefaultScreen(d));
-	for(int i=0; i < 14; ++i) {
+	for(int i=0; i < 16; ++i) {
 		XParseColor(d,cmap,color_vals[i],&xcolour);
 		XAllocColor(d,cmap,&xcolour);
 		colours[i]=xcolour.pixel;
@@ -163,6 +164,21 @@ void Xwindow::fillTile(int x, int y, int width, int height, bool dark) {
 	XFillRectangle(d, w, gc, x, y, width, height);
 	XSetFillStyle(d, gc, FillSolid);
 	XSetForeground(d, gc, colours[Black]);
+}
+
+void Xwindow::drawHighlightBorder(int x, int y, int width, int height, int colour, int thickness) {
+	if (thickness < 1) thickness = 1;
+	if (thickness > width / 2) thickness = width / 2;
+	if (thickness > height / 2) thickness = height / 2;
+
+	// Top
+	fillRectangle(x, y, width, thickness, colour);
+	// Bottom
+	fillRectangle(x, y + height - thickness, width, thickness, colour);
+	// Left
+	fillRectangle(x, y, thickness, height, colour);
+	// Right
+	fillRectangle(x + width - thickness, y, thickness, height, colour);
 }
 
 void Xwindow::drawString(int x, int y, string msg, int colour) {

@@ -10,7 +10,7 @@ class Xwindow {
 	Window w;
 	int s;
 	GC gc, gc2;
-	unsigned long colours[14];
+	unsigned long colours[16];
 	int width, height;
 	Pixmap tile_stipple_light;
 	Pixmap tile_stipple_dark;
@@ -24,7 +24,8 @@ class Xwindow {
 	~Xwindow();                              // Destructor; destroys the window.
 
 	enum { White = 0, Black, Red, Green, Blue, Cyan, Yellow, Magenta,
-		Orange, Brown, DimGray, LightBlue, SteelBlue, AliceBlue }; // Available colours.
+		Orange, Brown, DimGray, LightBlue, SteelBlue, AliceBlue,
+		MoveHighlight, CaptureHighlight }; // Available colours.
 
 	// Draws a string
 	void drawString(int x, int y, std::string msg, int colour = Black);
@@ -37,6 +38,9 @@ class Xwindow {
 
 	// Draws a patterned chessboard tile (dark/light).
 	void fillTile(int x, int y, int width, int height, bool dark);
+
+	// Draw a highlight border (keeps tile pattern visible).
+	void drawHighlightBorder(int x, int y, int width, int height, int colour, int thickness = 4);
 
 	// Draws a chess piece
 	void drawPiece(char piece, int x, int y, int width, int height, bool darkTile);

@@ -14,6 +14,11 @@ class GraphicDisplay : public Observer {
      EDGE_LEFT = 20, EDGE_BOTTOM = 20;
   Xwindow *window;
   std::vector<std::vector<char>> current_state;
+  // Last-move highlight tracking (so we can repaint old highlights).
+  int last_from_row = -1;
+  int last_from_col = -1;
+  int last_to_row = -1;
+  int last_to_col = -1;
   
 
  public:
