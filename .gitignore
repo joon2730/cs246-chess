@@ -1,0 +1,5 @@
+# Build artifacts
+src/*.o
+src/*.d
+src/chess
+
