@@ -508,4 +508,3 @@ bool Board::isInsufficientMaterial() {
 int Board::getRows() { return ROWS; }
 
 int Board::getCols() { return COLS; }
-

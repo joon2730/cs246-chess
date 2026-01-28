@@ -4,6 +4,7 @@
 #include "computerlevel2.h"
 #include "computerlevel3.h"
 #include "computerlevel4.h"
+#include "computerlevel5.h"
 #include "textdisplay.h"
 #include "graphicdisplay.h"
 #include <iostream>
@@ -140,6 +141,8 @@ unique_ptr<Player> ChessGame::createPlayer(int side, int player_type) {
         return std::make_unique<ComputerLevel3>(side);
     } else if (player_type == COMPUTERLEVEL4) {
         return std::make_unique<ComputerLevel4>(side);
+    } else if (player_type == COMPUTERLEVEL5) {
+        return std::make_unique<ComputerLevel5>(side);
     } else {
         throw std::invalid_argument("Invalid player type");
     }

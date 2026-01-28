@@ -12,7 +12,7 @@ using std::vector;
 
 class ChessGame {
     static const int NUM_PLAYERS = 2;
-    static const int NUM_PLAYER_TYPES = 5;
+    static const int NUM_PLAYER_TYPES = 6;
     Board board;
     unique_ptr<Player> players[NUM_PLAYERS];
     vector<unique_ptr<Observer>> observers;
@@ -23,7 +23,7 @@ class ChessGame {
   public:
     enum {TEXT_DISPLAY = 0, GRAPHIC_DISPLAY};
     enum {INITIAL = 0, ACTIVE, WHITE_WIN, BLACK_WIN, STALEMATE, INSUFFICIENT_MATERIAL};
-    enum {HUMAN = 0, COMPUTERLEVEL1, COMPUTERLEVEL2, COMPUTERLEVEL3, COMPUTERLEVEL4};
+    enum {HUMAN = 0, COMPUTERLEVEL1, COMPUTERLEVEL2, COMPUTERLEVEL3, COMPUTERLEVEL4, COMPUTERLEVEL5};
     ChessGame();
     void reset(int white_player_type, int black_player_type);
     void takeTurn();
