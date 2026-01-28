@@ -25,7 +25,9 @@ GraphicDisplay::GraphicDisplay(Board *s): subject{s} {
 
       int x = j * (TILE_WIDTH + HOZ_GAP) + HOZ_GAP + EDGE_LEFT;
       int y = i * (TILE_HEIGHT + VER_GAP) + VER_GAP;
-      window->fillRectangle(x, y, TILE_WIDTH, TILE_WIDTH, window->White);
+      // a8 (row 0, col 0) is dark
+      bool dark = ((i + j) % 2 == 0);
+      window->fillTile(x, y, TILE_WIDTH, TILE_HEIGHT, dark);
       if (i == subject->getRows() - 1) {
         char msg = 'a' + j;
         std::string s = "";
@@ -62,15 +64,18 @@ void GraphicDisplay::notify() {
 
         int x = col * (TILE_WIDTH + HOZ_GAP) + HOZ_GAP + EDGE_LEFT;
         int y = row * (TILE_HEIGHT + VER_GAP) + VER_GAP;
+        bool dark = ((row + col) % 2 == 0);
+        // Always repaint the tile first so piece redraws don't leave artifacts.
+        window->fillTile(x, y, TILE_WIDTH, TILE_HEIGHT, dark);
         if (sq->isEmpty()) {
-          window->fillRectangle(x, y, TILE_WIDTH, TILE_HEIGHT, window->White);
+          // tile already painted
         } else {
           char name = sq->getPiece()->printText()[0];
           // int piece_color = sq->getPiece()->getColor();
 
           // window->drawString(x + (TILE_WIDTH / 2), y + (TILE_HEIGHT / 2), text);
           // window->drawBigString(x + (TILE_WIDTH / 2), y + (TILE_HEIGHT / 2), "\u2654", window->Black);
-          window->drawPiece(name, x, y, TILE_WIDTH, TILE_HEIGHT);
+          window->drawPiece(name, x, y, TILE_WIDTH, TILE_HEIGHT, dark);
         }
       }
     }

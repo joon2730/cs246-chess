@@ -6,6 +6,7 @@
 #include <string>
 #include <unistd.h>
 #include <cmath>
+#include <cctype>
 #include "window.h"
 
 using namespace std;
@@ -36,18 +37,29 @@ Xwindow::Xwindow(int width, int height): width{width}, height{height} {
 	// Set up colours.
 	XColor xcolour;
 	Colormap cmap;
-	char color_vals[11][11] = {"white",  "black", "red",      "green",
+	char color_vals[14][20] = {"white",  "black", "red",      "green",
 		"blue",   "cyan",  "yellow",   "magenta",
-		"orange", "brown", "dimgray"};
+		"orange", "brown", "dimgray", "lightsteelblue", "steelblue", "aliceblue"};
 
 	cmap=DefaultColormap(d,DefaultScreen(d));
-	for(int i=0; i < 11; ++i) {
+	for(int i=0; i < 14; ++i) {
 		XParseColor(d,cmap,color_vals[i],&xcolour);
 		XAllocColor(d,cmap,&xcolour);
 		colours[i]=xcolour.pixel;
 	}
 
 	XSetForeground(d,gc,colours[Black]);
+
+	// Create stipple patterns for board tiles (8x8).
+	// 1-bits use foreground, 0-bits use background (FillOpaqueStippled).
+	static const unsigned char light_bits[8] = {
+		0x11, 0x00, 0x44, 0x00, 0x11, 0x00, 0x44, 0x00  // subtle speckle
+	};
+	static const unsigned char dark_bits[8] = {
+		0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55  // checker stipple
+	};
+	tile_stipple_light = XCreateBitmapFromData(d, w, reinterpret_cast<const char*>(light_bits), 8, 8);
+	tile_stipple_dark  = XCreateBitmapFromData(d, w, reinterpret_cast<const char*>(dark_bits), 8, 8);
 
 	// Make window non-resizeable.
 	XSizeHints hints;
@@ -113,16 +125,43 @@ Xwindow::Xwindow(int width, int height): width{width}, height{height} {
             break;
         }
     }
+
 }
 
 Xwindow::~Xwindow() {
 	XFreeGC(d, gc);
+	XFreePixmap(d, tile_stipple_light);
+	XFreePixmap(d, tile_stipple_dark);
+	for (auto &kv : imageMap) {
+		if (kv.second) {
+			XFreePixmap(d, *(kv.second));
+			delete kv.second;
+		}
+	}
 	XCloseDisplay(d);
 }
 
 void Xwindow::fillRectangle(int x, int y, int width, int height, int colour) {
 	XSetForeground(d, gc, colours[colour]);
 	XFillRectangle(d, w, gc, x, y, width, height);
+	XSetForeground(d, gc, colours[Black]);
+}
+
+void Xwindow::fillTile(int x, int y, int width, int height, bool dark) {
+	// Softer blue scheme:
+	// - Light tile: aliceblue base with lightsteelblue speckles
+	// - Dark tile:  lightsteelblue base with steelblue checker texture
+	const int fg = dark ? SteelBlue : LightBlue;
+	const int bg = dark ? LightBlue : AliceBlue;
+	Pixmap stipple = dark ? tile_stipple_dark : tile_stipple_light;
+
+	XSetForeground(d, gc, colours[fg]);
+	XSetBackground(d, gc, colours[bg]);
+	XSetStipple(d, gc, stipple);
+	XSetFillStyle(d, gc, FillOpaqueStippled);
+	XSetTSOrigin(d, gc, x, y);
+	XFillRectangle(d, w, gc, x, y, width, height);
+	XSetFillStyle(d, gc, FillSolid);
 	XSetForeground(d, gc, colours[Black]);
 }
 
@@ -207,12 +246,51 @@ GC Xwindow::create_gc(Display* d, Window w, int reverse_video) {
 	return gc;
 }
 
-void Xwindow::drawPiece(char piece, int x, int y, int width, int height) { 
-	x = x + (width / 2) - (bitmap_width / 2);
-	y = y + (height / 2) - (bitmap_height / 2);
+void Xwindow::drawPiece(char piece, int x, int y, int width, int height, bool darkTile) {
+	// Center the bitmap inside the tile.
+	const int draw_x = x + (width / 2) - static_cast<int>(bitmap_width / 2);
+	const int draw_y = y + (height / 2) - static_cast<int>(bitmap_height / 2);
+
+	(void)darkTile;
+
 	try {
-		XCopyPlane(d, *(imageMap.at(piece)), w, gc2, 0, 0, bitmap_width,
-		   bitmap_height, x, y, 1);
+		// Goal:
+		// - 0-bits stay transparent (tile shows through)
+		// - black pieces: draw as black silhouette
+		// - white pieces: fill white (using filled mask) and overlay black outline
+		const bool is_white_piece = ('A' <= piece && piece <= 'Z');
+		const char fillMaskChar = static_cast<char>(std::tolower(static_cast<unsigned char>(piece)));    // *b.xbm
+		const char outlineMaskChar = static_cast<char>(std::toupper(static_cast<unsigned char>(piece))); // *w.xbm
+
+		if (is_white_piece) {
+			// Fill pass (white) using the filled mask
+			{
+				Pixmap fillMask = *(imageMap.at(fillMaskChar));
+				XSetClipMask(d, gc2, fillMask);
+				XSetClipOrigin(d, gc2, draw_x, draw_y);
+				XSetForeground(d, gc2, colours[White]);
+				XFillRectangle(d, w, gc2, draw_x, draw_y, bitmap_width, bitmap_height);
+				XSetClipMask(d, gc2, None);
+			}
+			// Outline pass (black) using the outline mask
+			{
+				Pixmap outlineMask = *(imageMap.at(outlineMaskChar));
+				XSetClipMask(d, gc2, outlineMask);
+				XSetClipOrigin(d, gc2, draw_x, draw_y);
+				XSetForeground(d, gc2, colours[Black]);
+				XFillRectangle(d, w, gc2, draw_x, draw_y, bitmap_width, bitmap_height);
+				XSetClipMask(d, gc2, None);
+			}
+		} else {
+			// Black piece: draw silhouette as black using its own (filled) mask.
+			Pixmap mask = *(imageMap.at(piece));
+			XSetClipMask(d, gc2, mask);
+			XSetClipOrigin(d, gc2, draw_x, draw_y);
+			XSetForeground(d, gc2, colours[Black]);
+			XFillRectangle(d, w, gc2, draw_x, draw_y, bitmap_width, bitmap_height);
+			XSetClipMask(d, gc2, None);
+		}
+
 		XSync(d, false);
 	} catch (const out_of_range& except) {
 		cerr << "out of range error: " << except.what() << endl;
