@@ -8,13 +8,10 @@ A chess program with both **GUI (X11)** and **CLI (TextDisplay)** output. It sup
 This project was developed as a final assignment for **CS 246 (Object-Oriented Programming), University of Waterloo**.
 
 ## Docs
-- **UML**: `docs/uml.png` (image), `docs/uml.pdf` (PDF)
-- **Design**: `docs/design.pdf`
-- **Plan**: `docs/plan.pdf`
-
-Preview:
-
-![UML](docs/uml.png)
+- [UML class diagram](docs/uml.png)
+- [Design document](docs/design.pdf)
+- [Project plan](docs/plan.pdf)
+- [All docs](docs/)
 
 ## Quickstart (build & run)
 
@@ -74,7 +71,7 @@ game human computer5
 ### Quit
 - Send EOF (Ctrl+D) to exit; the program prints the final score.
 
-## AI levels
+## Computer levels
 - **Level 1**: random legal move
 - **Level 2**: prefers captures and checks
 - **Level 3**: prefers avoiding capture, plus captures and checks
@@ -100,3 +97,5 @@ game human computer5
 
 ## Opening book (Level 5)
 - Opening book lines are defined in `src/openingbook.cc` (`OpeningBook::level5Lines()`).
+
+
